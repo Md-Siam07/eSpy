@@ -1,0 +1,19 @@
+
+
+http://www.exforsys.com/tutorials/c-language/concept-of-pixel-in-c-graphics.html
+
+https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.bitmapdata?redirectedfrom=MSDN&view=netframework-4.8
+
+https://stackoverflow.com/questions/4674317/how-to-convert-bitmap-to-byte-faster
+
+header file
+
+https://gist.github.com/MrOrz/1199900
+
+raw code
+
+https://stackoverflow.com/questions/3370702/c-take-screenshot
+
+code
+
+https://stackoverflow.com/questions/25200011/take-a-screenshot-in-c-windows
