@@ -440,7 +440,7 @@ void viewWindows()
     {
         if(strlen(web[j])>5)
         {
-            rectangle(180,y1,500,y2);
+            rectangle(180,y1,800,y2);
             outtextxy(x,y, web[j]);
             y = y+50;
             y1+=50;
