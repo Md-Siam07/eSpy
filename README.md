@@ -6,3 +6,6 @@ Parse the file and get the compact result of keystrokes (get the browsed website
 Send the details over mail over a regular interval (2 hours). Emails can be manually sent via admin pannel too.
 Get the windows the user has clicked.
 Authentication and Admin surveilance support (CTRL+SHIFT+TAB to launch the admin pannel).
+
+
+Supervisor: Dr. B M Mainul Hossain
