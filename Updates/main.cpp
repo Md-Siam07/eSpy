@@ -10,7 +10,6 @@
 #include <iphlpapi.h>
 #include <winsock2.h>
 #include<time.h>
-#include <cstdlib>
 
 #define SMTP_PORT "25"
 #define DEFAULT_BUFLEN 1024
