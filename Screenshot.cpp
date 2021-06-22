@@ -5,7 +5,7 @@ int GetFilePointer(HANDLE FileHandle)
 {
     return SetFilePointer(FileHandle, 0, 0, FILE_CURRENT);
 }
-//i took the help from.....
+
 bool SaveBMPFile(char *filename, HBITMAP bitmap, HDC bitmapDC, int width, int height)
 {
     HBITMAP offScreenBitmap=NULL;
@@ -94,6 +94,9 @@ bool SaveBMPFile(char *filename, HBITMAP bitmap, HDC bitmapDC, int width, int he
     return true;
 }
 
+
+//capture the screenshot of the current window
+//idea taken from github : ...
 bool ScreenCapture(int x, int y, int width, int height, char *filename)
 {
     HDC hDc = CreateCompatibleDC(0);
