@@ -1,0 +1,34 @@
+# depslib dependency file v1.0
+1624374992 source:f:\espy\logkeys.cpp
+	<bits/stdc++.h>
+	"Headers.h"
+	<windows.h>
+	<time.h>
+
+1624374953 f:\espy\headers.h
+
+1624374968 source:f:\espy\main.cpp
+	<bits/stdc++.h>
+	"Headers.h"
+
+1624375011 source:f:\espy\parser.cpp
+	<bits/stdc++.h>
+	"Headers.h"
+
+1624375038 source:f:\espy\screenshot.cpp
+	<bits/stdc++.h>
+	<windows.h>
+
+1624375066 source:f:\espy\sendmail.cpp
+	<bits/stdc++.h>
+	<windows.h>
+	<ws2tcpip.h>
+	<iphlpapi.h>
+	<winsock2.h>
+	"Headers.h"
+
+1624375088 source:f:\espy\userinterface.cpp
+	<graphics.h>
+	<bits/stdc++.h>
+	"Headers.h"
+

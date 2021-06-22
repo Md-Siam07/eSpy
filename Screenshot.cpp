@@ -1,12 +1,11 @@
-
 #include<bits/stdc++.h>
-#include <windows.h>
+#include<windows.h>
 
 int GetFilePointer(HANDLE FileHandle)
 {
     return SetFilePointer(FileHandle, 0, 0, FILE_CURRENT);
 }
-
+//i took the help from.....
 bool SaveBMPFile(char *filename, HBITMAP bitmap, HDC bitmapDC, int width, int height)
 {
     HBITMAP offScreenBitmap=NULL;
@@ -91,7 +90,7 @@ bool SaveBMPFile(char *filename, HBITMAP bitmap, HDC bitmapDC, int width, int he
 
     if (Written < sizeof(bmfh))
         return false;
-
+    CloseHandle(BmpFile);
     return true;
 }
 
@@ -104,11 +103,5 @@ bool ScreenCapture(int x, int y, int width, int height, char *filename)
     bool value = SaveBMPFile(filename, hBmp, hDc, width, height);
     DeleteObject(hBmp);
     return value;
-}
-
-main()
-{
-    ScreenCapture(0, 0, 1500, 1000, "testScreenCap.bmp");
-    printf("wrote to testScreenCap.bmp");
 }
 

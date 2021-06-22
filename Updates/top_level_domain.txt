@@ -1,7 +1,0 @@
-.com
-.org
-.net
-.gov
-.in
-.mil
-.edu
