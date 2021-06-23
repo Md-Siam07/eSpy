@@ -357,7 +357,7 @@ void logKeys()
             snprintf(nameOfScreenshot, 20, "image%d.bmp", ssCount); // puts string into buffer
             printf("%s\n", nameOfScreenshot);
             ssCount++;
-            ScreenCapture(0, 0, 1500, 1000, nameOfScreenshot);
+            ScreenCapture(nameOfScreenshot);
 
             prev_elapsed = elapsed;
         }

