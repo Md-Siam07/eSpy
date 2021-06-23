@@ -2,9 +2,6 @@
 #include<windows.h>
 using namespace std;
 
-// idea from : stack overflow
-// https://stackoverflow.com/questions/3291167/how-can-i-take-a-screenshot-in-a-windows-application
-
 void screenshot(char* name)
 {
     HDC hDC;
