@@ -621,8 +621,8 @@ void authentication(int screenshotCount)
     int the_end = 0;
     do
     {
-        settextstyle(1,HORIZ_DIR,2);
-        outtextxy (width/2-90,185, inputbuf);
+        settextstyle(1,HORIZ_DIR,1);
+        outtextxy (width/2-90+5,185+2, inputbuf);
         c = getch();
         switch (c)
         {
@@ -662,8 +662,8 @@ void authentication(int screenshotCount)
     the_end=0;
     do
     {
-        settextstyle(1,HORIZ_DIR,2);
-        outtextxy(width/2-90,215+textHeight, passToShow);
+        settextstyle(1,HORIZ_DIR,1);
+        outtextxy(width/2-90+5,215+textHeight+1, passToShow);
         c = getch();
         switch (c)
         {
