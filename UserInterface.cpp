@@ -8,8 +8,6 @@ using namespace std;
 
 int ssCounts;
 
-//return true if authentication succeeds, false otherwise
-
 bool authentication_ret(char takenName[], char takenPass[])
 {
     FILE *fp;
@@ -44,8 +42,6 @@ bool authentication_ret(char takenName[], char takenPass[])
 
 }
 
-// UI for sending email
-
 void mailingGraph()
 {
     char recipients_mail[256];
@@ -77,9 +73,6 @@ void mailingGraph()
     settextstyle(BOLD_FONT,HORIZ_DIR,4);
     setcolor(RED);
     outtextxy(1050,460,"Cancel");
-
-    //take input from graphics console
-
     char c;
     char inputbuf[MAX_INPUT_LEN]="";
     int input_pos = 0;
@@ -124,9 +117,6 @@ void mailingGraph()
     printf("Your email: %s",email);
     bool flags = true;
     int x,y;
-
-    //check for the clicks at buttons
-
     while(flags)
     {
         if(GetKeyState(VK_LBUTTON)&0x8000)
@@ -396,9 +386,6 @@ void addUser()
 
 }
 
-
-// view the windows a user has visited
-
 void viewWindows()
 {
     int screenWidth= GetSystemMetrics(SM_CXSCREEN);
@@ -459,8 +446,6 @@ void viewWindows()
 
 }
 
-//view the screenshots captured so far
-
 void viewSS()
 {
     printf("1");
@@ -485,8 +470,6 @@ void viewSS()
     }
     viewOptions();
 }
-
-//menu bar
 
 void viewOptions()
 {
@@ -600,9 +583,6 @@ void viewOptions()
     closegraph();
 }
 
-
-//login (initiator of the admin pannel)
-
 void authentication(int screenshotCount)
 {
     ssCounts = screenshotCount;
@@ -634,8 +614,6 @@ void authentication(int screenshotCount)
 
     rectangle(width/2-80,300,width/2+80,340);
     outtextxy(width/2-textWidth2/2,310,"SIGN IN");
-
-    //take user name
 
     char c;
     char inputbuf[MAX_INPUT_LEN]="";
@@ -678,15 +656,14 @@ void authentication(int screenshotCount)
     strcpy(email,inputbuf);
     printf("Your email: %s",email);
 
-    //input password
-
     input_pos=0;
     char passInput[16]="";
+    char passToShow[16]="";
     the_end=0;
     do
     {
         settextstyle(1,HORIZ_DIR,2);
-        outtextxy (width/2-90,215+textHeight, passInput);
+        outtextxy(width/2-90,215+textHeight, passToShow);
         c = getch();
         switch (c)
         {
@@ -695,6 +672,7 @@ void authentication(int screenshotCount)
             {
                 input_pos--;
                 passInput[input_pos] = ' ';
+                strcat(passToShow, "*");
             }
             break;
             case 13: /* return */
@@ -709,6 +687,7 @@ void authentication(int screenshotCount)
                 {
                     passInput[input_pos] = c;
                     input_pos++;
+                    strcat(passToShow, "*");
                     passInput[input_pos] = 0;
                 }
         }
