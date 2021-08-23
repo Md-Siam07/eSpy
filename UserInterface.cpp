@@ -1,5 +1,6 @@
 #include<graphics.h>
 #include<bits/stdc++.h>
+#include<ctime>
 #include "Headers.h"
 
 using namespace std;
@@ -142,7 +143,7 @@ void mailingGraph()
         mailMyLog(recipients_mail);
         settextstyle(8,HORIZ_DIR,3);
         outtextxy(100,100,"Mailed! Redirecting to Options...");
-        delay(5000);
+        delay(3000);
         closegraph();
         viewOptions();
     }
@@ -398,6 +399,7 @@ void viewWindows()
     int i=0;
     while(fgets(web[i],100,fp)!=0)
     {
+        cout<< web[i]<<endl;
         i++;
     }
     int x =200;
@@ -727,7 +729,16 @@ void authentication(int screenshotCount)
         printf("\nvalue returned: %d\n",authenticate);
         if(authenticate==true)
         {
+            //input the login time and user ID to the file
+            FILE* loginHostory = fopen("login_history.txt","a");
+            time_t now = time(0);
+            char *dt = ctime(&now);
+            fprintf(loginHostory,"%s\n", email);
+            fprintf(loginHostory,"%s\n", dt);
+            tm *gmtm = gmtime(&now);
+            dt = asctime(gmtm);
             std::cout<< "\nauthenticated\n";
+            fclose(loginHostory);
             closegraph();
             delay(500);
             viewOptions();
