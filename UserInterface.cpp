@@ -24,10 +24,8 @@ bool authentication_ret(char takenName[], char takenPass[])
         nameOnFile[size1-1]='\0';
         int size2= strlen(passOnFile);
         passOnFile[size2-1]='\0';
-        std::cout<< "name : "<< nameOnFile<< " pass: "<< passOnFile<<std::endl;
         if(strcmp(nameOnFile,takenName)==0 && strcmp(passOnFile,takenPass)==0)
         {
-            //printf("successful");
             flag = true;
 
         }
@@ -38,7 +36,6 @@ bool authentication_ret(char takenName[], char takenPass[])
         }
     }
     fclose(fp);
-    std::cout<< "false"<<std::endl;
     return flag;
 
 }
@@ -52,8 +49,6 @@ void mailingGraph()
     setcolor(WHITE);
 
     char s[]= "siam";
-    //FILE *fp = fopen("authorised_users.txt","a");
-
 
     settextstyle(3, HORIZ_DIR, 5);
     setbkcolor(BLUE);
@@ -115,7 +110,6 @@ void mailingGraph()
     recipients_mail[email_size-1]='\0';
     POINT position;
     int count=0;
-    printf("Your email: %s",email);
     bool flags = true;
     int x,y;
     while(flags)
@@ -124,7 +118,6 @@ void mailingGraph()
         {
 
             GetCursorPos(&position);
-            printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
         x = position.x;
@@ -197,7 +190,6 @@ void viewBrowsedWebsites()
         {
 
             GetCursorPos(&position);
-            printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
         xx=position.x;
@@ -212,7 +204,6 @@ void viewBrowsedWebsites()
         delay(500);
         viewOptions();
     }
-    //closegraph();
 
 
 }
@@ -226,7 +217,6 @@ void addUser()
     setcolor(WHITE);
 
     char s[]= "siam";
-    //FILE *fp = fopen("authorised_users.txt","a");
 
 
     settextstyle(3, HORIZ_DIR, 5);
@@ -326,11 +316,6 @@ void addUser()
     } while (!the_end);
     char password[80];
     strcpy(password,passInput);
-    printf("\nYour password: %s",password);
-
-
-    //delay(500);'
-    //fflush(stdin);
     POINT position;
     int count=0;
     bool flag = true;
@@ -342,7 +327,6 @@ void addUser()
         {
 
             GetCursorPos(&position);
-            printf("\n now point is %d %d",position.x,position.y);
             count++;
         }
         x = position.x;
@@ -356,7 +340,6 @@ void addUser()
 
     if(x>=550&&x<=700&&y>=450&&y<=550)
     {
-        //std::cout<< "hi"<<std::endl;
         FILE *addUserFP = fopen("authorised_users.txt","a");
         fputs(name, addUserFP);
         fputs("\n",addUserFP);
@@ -370,8 +353,6 @@ void addUser()
         settextstyle(3, HORIZ_DIR, 5);
         setbkcolor(BLUE);
         setcolor(YELLOW);
-        //setbkcolor(BLUE);
-        //setcolor(BLUE);
         outtextxy(400,100, "User added successfully!");
         delay(3000);
         closegraph();
@@ -504,7 +485,6 @@ void viewOptions()
     setcolor(RED);
     outtextxy(1050,570,"EXIT");
     int count=0;
-    //getch();
     delay(500);
     POINT position;
     bool flag=false;
@@ -565,7 +545,6 @@ void viewOptions()
 
     if(x>=1000 && x<=1200 && y>=550 && y<=650)
     {
-        //closegraph();
         int height=300,width=700;
         initwindow(width,height,"Exiting",200,200);
         settextstyle(8,HORIZ_DIR,3);
@@ -656,8 +635,6 @@ void authentication(int screenshotCount)
     } while (!the_end);
     char email[80];
     strcpy(email,inputbuf);
-    printf("Your email: %s",email);
-
     input_pos=0;
     char passInput[16]="";
     char passToShow[16]="";
@@ -698,7 +675,6 @@ void authentication(int screenshotCount)
     } while (!the_end);
     char password[80];
     strcpy(password,passInput);
-    printf("\nYour password: %s",password);
 
     bool authenticate;
     int size = strlen(email);
@@ -714,7 +690,6 @@ void authentication(int screenshotCount)
 
         if(GetAsyncKeyState(VK_LBUTTON)&0x8000)
         {
-            printf("\nPRESSED");
             GetCursorPos(&check);
 
         }
@@ -728,10 +703,9 @@ void authentication(int screenshotCount)
 
 
         authenticate = authentication_ret(email, password);
-        printf("\nvalue returned: %d\n",authenticate);
         if(authenticate==true)
         {
-            //input the login time and user ID to the file
+        //input the login time and user ID to the file
             FILE* loginHostory = fopen("login_history.txt","a");
             time_t now = time(0);
             char *dt = ctime(&now);
@@ -748,7 +722,6 @@ void authentication(int screenshotCount)
         else
         {
             std::cout<< "\nauthentication failed\n";
-            //delay(500);
 
             int height=300,width=700;
             initwindow(width,height,"Authentication Failed",500,350);

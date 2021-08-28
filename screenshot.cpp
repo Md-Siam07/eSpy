@@ -42,7 +42,7 @@ void ScreenCapture(char* name)
 	bmiHeader.biClrUsed = 0;
 	bmiHeader.biClrImportant = 0;
 
-    //calculate the size of bmp
+    //calculate the size of bmp (ref: https://docs.microsoft.com/en-us/windows/win32/gdi/capturing-an-image)
 
 	dwBmpSize = (width * bmiHeader.biBitCount + 31) / 32 * 4 * height;
 	dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);

