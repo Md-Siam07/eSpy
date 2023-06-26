@@ -4,7 +4,6 @@
 Designation: Associate Professor <br>
 Institute: University of Dhaka</i>
 
-**Description:**
 **eSpy is** a project designed to track and analyze user behavior on a computer system while ensuring complete anonymity. The system operates discreetly in the background, capturing various aspects of the user's activity for analysis and reporting purposes. It provides valuable insights into the user's browsing habits, including the websites visited, while respecting privacy and legal considerations.
 
 **Key Features:**
