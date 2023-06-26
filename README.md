@@ -1,4 +1,4 @@
-<span style="font-size:50px;">eSpy</span>
+<h1>eSpy</h1>
 
 <i>Supervisor: Dr. B M Mainul Hossain <br>
 Designation: Associate Professor <br>
